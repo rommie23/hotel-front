@@ -1,37 +1,147 @@
-import { useState } from 'react'
-import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
+import { Routes, Route, Navigate, BrowserRouter } from "react-router-dom";
+import ProtectedRoute from "./auth/ProtectedRoute";
+import RoleRoute from "./auth/RoleRoute";
 
-import './App.css'
+import Login from "./pages/login/Login";
+import DashboardLayout from "./layouts/DashboardLayout";
+import DashboardHome from "./pages/dashboard/DashboardHome";
+
+// Reception
+import Availability from "./pages/reception/Availability";
+import CheckIn from "./pages/reception/CheckIn";
+import ActiveStays from "./pages/reception/ActiveStays";
+import StayBilling from "./pages/reception/StayBilling";
+import CheckOut from "./pages/reception/CheckOut";
+
+// Housekeeping
+// import PendingRooms from "./pages/housekeeping/PendingRooms";
+
+// Manager
+import Reports from "./pages/manager/Reports";
+import Revenue from "./pages/manager/Revenue";
+import AvailabilityWeek from "./pages/reception/AvailabilityWeek";
+// import Occupancy from "./pages/manager/Occupancy";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <div className="min-h-screen flex items-center justify-center text-4xl font-bold text-indigo-600">
-      Tailwind v4 is WORKING 🔥
+    <BrowserRouter>
+    <Routes>
 
-      <Menu>
-      <MenuButton>My account</MenuButton>
-      <MenuItems anchor="bottom">
-        <MenuItem>
-          <a className="block data-focus:bg-blue-100" href="/settings">
-            Settings
-          </a>
-        </MenuItem>
-        <MenuItem>
-          <a className="block data-focus:bg-blue-100" href="/support">
-            Support
-          </a>
-        </MenuItem>
-        <MenuItem>
-          <a className="block data-focus:bg-blue-100" href="/license">
-            License
-          </a>
-        </MenuItem>
-      </MenuItems>
-    </Menu>
-    </div>
-  )
+      {/* Root */}
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
+      {/* Public */}
+      <Route path="/login" element={<Login />} />
+
+      {/* Dashboard Layout (PROTECTED) */}
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        {/* Dashboard Home */}
+        <Route index element={<DashboardHome />} />
+
+        {/* RECEPTION */}
+        <Route
+          path="reception/availability"
+          element={
+            <RoleRoute allowedRoles={["RECEPTION"]}>
+              <Availability />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="reception/availability-week"
+          element={
+            <RoleRoute allowedRoles={["RECEPTION"]}>
+              <AvailabilityWeek />
+            </RoleRoute>
+          }
+        />
+
+        <Route
+          path="reception/checkin"
+          element={
+            <RoleRoute allowedRoles={["RECEPTION"]}>
+              <CheckIn />
+            </RoleRoute>
+          }
+        />
+
+        <Route
+          path="reception/billing/:stayId"
+          element={
+            <RoleRoute allowedRoles={["RECEPTION"]}>
+              <StayBilling />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="reception/checkout/:stayId"
+          element={
+            <RoleRoute allowedRoles={["RECEPTION"]}>
+              <CheckOut />
+            </RoleRoute>
+          }
+        />
+
+        <Route
+          path="reception/active-stays"
+          element={
+            <RoleRoute allowedRoles={["RECEPTION"]}>
+              <ActiveStays />
+            </RoleRoute>
+          }
+        />
+
+        {/* HOUSEKEEPING */}
+        {/* <Route
+          path="housekeeping/pending"
+          element={
+            <RoleRoute allowedRoles={["HOUSEKEEPING"]}>
+              <PendingRooms />
+            </RoleRoute>
+          }
+        /> */}
+
+        {/* MANAGER / ADMIN */}
+        <Route
+          path="manager/reports"
+          element={
+            <RoleRoute allowedRoles={["ADMIN", "MANAGER"]}>
+              <Reports />
+            </RoleRoute>
+          }
+        />
+
+        <Route
+          path="manager/revenue"
+          element={
+            <RoleRoute allowedRoles={["ADMIN", "MANAGER"]}>
+              <Revenue />
+            </RoleRoute>
+          }
+        />
+
+        {/* <Route
+          path="manager/occupancy"
+          element={
+            <RoleRoute allowedRoles={["ADMIN", "MANAGER"]}>
+              <Occupancy />
+            </RoleRoute>
+          }
+        /> */}
+      </Route>
+
+      {/* Fallback */}
+      <Route path="*" element={<Navigate to="/login" replace />} />
+    </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
