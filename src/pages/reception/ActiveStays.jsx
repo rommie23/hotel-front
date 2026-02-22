@@ -1,160 +1,8 @@
-// import { useEffect, useState } from "react";
-// import { getActiveStays, checkoutStay } from "../../api/stays.api";
-// import { useNavigate } from "react-router-dom";
-// import { formatDateTime } from "../../utils/dateTime";
-
-// export default function ActiveStays() {
-//   const [stays, setStays] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState("");
-//   const navigate = useNavigate();
-
-//   const fetchStays = async () => {
-//     try {
-//       setLoading(true);
-//       const res = await getActiveStays();
-//       setStays(res.stays || []);
-//       console.log(res.stays);
-
-
-//     } catch (err) {
-//       console.error(err);
-//       setError("Failed to load active stays");
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   useEffect(() => {
-//     fetchStays();
-//   }, []);
-
-//   const handleCheckout = async (stay) => {
-//     if (stay.dueAmount > 0) {
-//       alert(`Cannot checkout. Pending amount ₹${stay.dueAmount}`);
-//       return;
-//     }
-
-//     if (!window.confirm("Confirm checkout?")) return;
-
-//     try {
-//       await checkoutStay(stay.stayId);
-//       fetchStays(); // refresh list
-//     } catch (err) {
-//       alert("Checkout failed");
-//     }
-//   };
-
-//   const isOverdue = (checkoutDate) => {
-//     const today = new Date().toISOString().split("T")[0];
-//     return checkoutDate < today;
-//   };
-
-//   if (loading) {
-//     return <p className="text-gray-500">Loading active stays...</p>;
-//   }
-
-//   return (
-//     <div>
-//       <h2 className="text-2xl font-bold mb-6">Active Stays</h2>
-
-//       {error && <p className="text-red-500 mb-4">{error}</p>}
-
-//       <div className="bg-white rounded-xl shadow overflow-x-auto">
-//         <table className="w-full border-collapse">
-//           <thead className="bg-gray-100">
-//             <tr>
-//               <th className="p-3 text-left">Room</th>
-//               <th className="p-3 text-left">Guest</th>
-//               <th className="p-3 text-left">Check-in</th>
-//               <th className="p-3 text-left">Check-out</th>
-//               <th className="p-3 text-left">Total</th>
-//               <th className="p-3 text-left">Paid</th>
-//               <th className="p-3 text-left">Due</th>
-//               <th className="p-3 text-left">Actions</th>
-//             </tr>
-//           </thead>
-
-//           <tbody>
-//             {stays.length === 0 ? (
-//               <tr>
-//                 <td colSpan="8" className="p-6 text-center text-gray-500">
-//                   No active stays
-//                 </td>
-//               </tr>
-//             ) : (
-//               stays.map((stay) => (
-//                 <tr
-//                   key={stay.stayId}
-//                   className={`border-t ${
-//                     isOverdue(stay.checkoutDate)
-//                       ? "bg-red-50"
-//                       : ""
-//                   }`}
-//                 >
-//                   <td className="p-3 font-medium">
-//                     {stay.roomNumber}
-//                   </td>
-//                   <td className="p-3">{stay.guestName}</td>
-//                   <td className="p-3">{formatDateTime(stay.checkinDate)}</td>
-//                   <td className="p-3">
-//                     {stay.checkoutDate}
-//                     {isOverdue(stay.checkoutDate) && (
-//                       <span className="ml-2 text-xs text-red-600">
-//                         (Overdue)
-//                       </span>
-//                     )}
-//                   </td>
-//                   <td className="p-3">₹{stay.totalAmount}</td>
-//                   <td className="p-3">₹{stay.paidAmount}</td>
-//                   <td className="p-3 font-semibold text-red-600">
-//                     ₹{stay.dueAmount}
-//                   </td>
-//                   <td className="p-3 space-x-2">
-//                     <button
-//                       onClick={() =>
-//                         navigate(
-//                           `/dashboard/reception/billing/${stay.stayId}`
-//                         )
-//                       }
-//                       className="text-sm bg-indigo-600 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-700"
-//                     >
-//                       Billing
-//                     </button>
-
-//                     <button
-//                       onClick={() =>
-//                         navigate(
-//                           `/dashboard/reception/checkout/${stay.stayId}`
-//                         )
-//                       }
-//                     //   disabled={stay.dueAmount > 0}
-//                       className={`text-sm px-3 py-1.5 rounded-lg ${
-//                         stay.dueAmount > 0
-//                           ? "bg-gray-300 text-gray-600"
-//                           : "bg-green-600 text-white hover:bg-green-700"
-//                       }`}
-//                     >
-//                       Checkout
-//                     </button>
-//                   </td>
-//                 </tr>
-//               ))
-//             )}
-//           </tbody>
-//         </table>
-//       </div>
-//     </div>
-//   );
-// }
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getRoomBoard } from "../../api/stays.api";
-import { formatDateTime } from "../../utils/dateTime";
+import { getRoomBoard, changeRoom } from "../../api/stays.api";
+import { formatHotelDate, formatHotelDateTime } from "../../utils/dateTime";
 import { DndContext, useDraggable, useDroppable, DragOverlay } from "@dnd-kit/core";
-import { changeRoom } from "../../api/stays.api";
-
 
 export default function ActiveStays() {
   const [rooms, setRooms] = useState([]);
@@ -173,8 +21,7 @@ export default function ActiveStays() {
       setLoading(true);
       const res = await getRoomBoard();
       console.log(res);
-
-      setRooms(res.rooms || res); // depends on your response wrapper
+      setRooms(res.rooms || res);
     } catch (err) {
       console.error(err);
       setError("Failed to load room board");
@@ -184,75 +31,78 @@ export default function ActiveStays() {
   };
 
   function StayCard({ room, dragging = false }) {
-  const {
-    setNodeRef,
-    listeners,
-    attributes,
-    isDragging
-  } = useDraggable({
-    id: room.stayId,
-    data: { room }
-  });
+    const {
+      setNodeRef,
+      listeners,
+      attributes,
+      isDragging
+    } = useDraggable({
+      id: room.stayId,
+      data: { room }
+    });
 
-  if (isDragging && !dragging) return null;
+    if (isDragging && !dragging) return null;
 
-  return (
-    <div
-      ref={setNodeRef}
-      {...attributes}
-      className={`
-        rounded-xl border bg-white p-4
-        transition-all duration-200
-        ${dragging ? "shadow-2xl scale-105" : "shadow-sm"}
-      `}
-    >
-      {/* HEADER */}
-      <div className="flex justify-between items-start">
-        <div>
-          <p className="font-semibold text-lg">
-            {room.guestName}
-          </p>
-          <p className="text-xs text-gray-500">
-            Stay ID #{room.stayId}
-          </p>
-        </div>
-
-        {/* DRAG HANDLE */}
-        <div className="flex gap-2">
-          <div className="bg-red-400 p-2 rounded-xl text-xs text-white">
-            Due: {room.dueAmount}
+    return (
+      <div
+        ref={setNodeRef}
+        {...attributes}
+        className={`
+          rounded-xl border border-gray-200 bg-white p-4
+          transition-all duration-200
+          ${dragging 
+            ? "shadow-2xl scale-105 ring-2 ring-indigo-400" 
+            : "shadow-sm hover:shadow-md"
+          }
+        `}
+      >
+        {/* Card Header */}
+        <div className="flex justify-between items-start mb-3">
+          <div>
+            <p className="font-semibold text-gray-800 text-lg">
+              {room.guestName}
+            </p>
+            <p className="text-xs text-gray-500 mt-0.5">
+              Stay ID #{room.stayId}
+            </p>
           </div>
-          <div
-            {...listeners}
-            className="cursor-grab active:cursor-grabbing text-gray-400"
-            title="Drag to change room"
-          >
-            ⠿
+
+          {/* Status Badge & Drag Handle */}
+          <div className="flex items-center gap-2">
+            <span className="bg-red-100 text-red-700 px-3 py-1.5 rounded-lg text-xs font-medium">
+              Due: ₹{room.dueAmount}
+            </span>
+            <div
+              {...listeners}
+              className="cursor-grab active:cursor-grabbing p-2 hover:bg-gray-100 rounded-lg transition"
+              title="Drag to change room"
+            >
+              <span className="text-gray-500 text-xl leading-none">⋮⋮</span>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* BODY */}
-      <div className="flex justify-between">
-        <div className="mt-3 text-sm text-gray-600 space-y-1">
-          <p>
-            <span className="font-medium">Check-in:</span>{" "}
-            {formatDateTime(room.checkinDate)}
-          </p>
-          <p>
-            <span className="font-medium">Checkout:</span>{" "}
-            {formatDateTime(room.expectedCheckoutDate)}
-          </p>
-        </div>
+        {/* Stay Details */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+          <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+            <div>
+              <p className="font-medium text-xs text-gray-400">Check-in:</p>{" "}
+              <span className="text-gray-600">{formatHotelDateTime(room.checkinDate, room.hotelTimezone)}</span>
+            </div>
+            <div>
+              <p className="font-medium text-xs text-gray-400">Expected Checkout:</p>{" "}
+              <span className="text-gray-600">{formatHotelDate(room.expectedCheckoutDate)}</span>
+            </div>
+          </div>
 
-        {/* ACTION BUTTONS */}          
-          <div className="mt-4 flex justify-end gap-2">
+          {/* Action Buttons */}
+          <div className="flex gap-2">
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 navigate(`/dashboard/reception/billing/${room.stayId}`);
               }}
-              className="text-sm bg-indigo-600 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-700"
+              className="text-sm bg-indigo-600 text-white px-4 py-1.5 rounded-lg hover:bg-indigo-700 transition font-medium"
             >
               Billing
             </button>
@@ -262,25 +112,26 @@ export default function ActiveStays() {
                 e.stopPropagation();
                 navigate(`/dashboard/reception/checkout/${room.stayId}`);
               }}
-              className={`text-sm px-3 py-1.5 rounded-lg ${
-                room.dueAmount > 0
-                  ? "bg-gray-300 text-gray-600 hover:bg-gray-400"
+              className={`
+                text-sm px-4 py-1.5 rounded-lg transition font-medium
+                ${room.dueAmount > 0
+                  ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
                   : "bg-green-600 text-white hover:bg-green-700"
-              }`}
+                }
+              `}
             >
               Checkout
             </button>
           </div>
+        </div>
+
+        {/* Helper Text */}
+        <div className="text-xs text-gray-400 italic border-t border-gray-100 pt-2 mt-1">
+          Drag using handle at top right to change room
+        </div>
       </div>
-
-      <div className="mt-2 text-xs text-gray-400 italic">
-        Drag using the handle to change room
-      </div>
-    </div>
-  );
-}
-
-
+    );
+  }
 
   function RoomDropZone({ room, children }) {
     const disabled = room.roomStatus !== "READY";
@@ -295,20 +146,19 @@ export default function ActiveStays() {
       <div
         ref={setNodeRef}
         className={`
-        flex-1 p-4 transition-all duration-200
-        ${disabled
-            ? "bg-gray-100"
+          flex-1 p-4 transition-all duration-200 min-h-40
+          ${disabled
+            ? "bg-gray-50 border border-dashed border-gray-200"
             : isOver
-              ? "bg-green-100 ring-2 ring-green-400"
+              ? "bg-green-50 ring-2 ring-green-400 ring-inset"
               : "bg-white"
           }
-      `}
+        `}
       >
         {children}
       </div>
     );
   }
-
 
   const handleDragStart = ({ active }) => {
     setActiveRoom(active.data.current.room);
@@ -324,54 +174,104 @@ export default function ActiveStays() {
 
     if (stayRoom.roomId === targetRoomId) return;
 
-    if (!window.confirm("Change room for this guest?")) return;
+    if (!window.confirm("Are you sure you want to change room for this guest?")) return;
 
-    await changeRoom(stayRoom.stayId, targetRoomId);
-    fetchRooms();
+    try {
+      await changeRoom(stayRoom.stayId, targetRoomId);
+      fetchRooms();
+    } catch (err) {
+      console.error(err);
+      setError("Failed to change room. Please try again.");
+    }
   };
 
-
   if (loading) {
-    return <p className="text-gray-500">Loading rooms…</p>;
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-center">
+          <div className="inline-block w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mb-3"></div>
+          <p className="text-gray-600">Loading room board...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-6">Room Board</h2>
-      {error && (
-        <p className="text-red-500 mb-4">{error}</p>
-      )}
-      <div className="space-y-4">
-        <DndContext
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
-        >
-          <div className="space-y-4">
-            {rooms.map(room => (
-              <div key={room.roomId} className="flex border rounded-xl">
-                <div className="w-38 bg-gray-100 p-4 border-r">
-                  Room {room.roomNumber}
-                  <p>{room.roomStatus}</p>
-                </div>
-
-                <RoomDropZone room={room}>
-                  {room.stayId ? (
-                    <StayCard room={room} />
-                  ) : (
-                    <p className="text-gray-400 italic">Empty room</p>
-                  )}
-                </RoomDropZone>
-              </div>
-            ))}
-          </div>
-          <DragOverlay>
-            {activeRoom ? (
-              <StayCard room={activeRoom} dragging />
-            ) : null}
-          </DragOverlay>
-        </DndContext>
+    <div className="max-w-6xl mx-auto">
+      {/* Page Header */}
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold text-gray-800">Room Board</h2>
+        <p className="text-gray-600 mt-1">Drag and drop guests to change rooms</p>
       </div>
+
+      {/* Error Message */}
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-red-600 text-sm flex items-center gap-2">
+            <span className="inline-block w-1.5 h-1.5 bg-red-600 rounded-full"></span>
+            {error}
+          </p>
+        </div>
+      )}
+
+      {/* Room Board */}
+      <DndContext
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
+        <div className="space-y-4">
+          {rooms.map(room => (
+            <div 
+              key={room.roomId} 
+              className="flex border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm"
+            >
+              {/* Room Sidebar */}
+              <div className="w-40 bg-linear-to-b from-gray-50 to-white p-4 border-r border-gray-200 flex flex-col">
+                <span className="font-semibold text-gray-800 text-lg">
+                  Room {room.roomNumber}
+                </span>
+                <span className={`
+                  inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium mt-2 w-fit
+                  ${room.roomStatus === "READY" 
+                    ? "bg-green-100 text-green-800" 
+                    : "bg-yellow-100 text-yellow-800"
+                  }
+                `}>
+                  {room.roomStatus}
+                </span>
+              </div>
+
+              {/* Room Content */}
+              <RoomDropZone room={room}>
+                {room.stayId ? (
+                  <StayCard room={room} />
+                ) : (
+                  <div className="h-full flex items-center justify-center min-h-35">
+                    <p className="text-gray-400 italic text-sm">✨ Empty room • {`${room.roomStatus}`.charAt(0).toUpperCase() + `${room.roomStatus}`.slice(1).toLowerCase(  )} for check-in</p>
+                  </div>
+                )}
+              </RoomDropZone>
+            </div>
+          ))}
+        </div>
+
+        {/* Drag Overlay */}
+        <DragOverlay dropAnimation={null}>
+          {activeRoom ? (
+            <div className="transform rotate-3 shadow-2xl">
+              <StayCard room={activeRoom} dragging />
+            </div>
+          ) : null}
+        </DragOverlay>
+      </DndContext>
+
+      {/* Empty State */}
+      {rooms.length === 0 && !loading && (
+        <div className="text-center py-16 bg-white rounded-xl border border-gray-200">
+          <p className="text-gray-500 text-lg">No rooms available</p>
+          <p className="text-gray-400 text-sm mt-1">Add rooms to get started</p>
+        </div>
+      )}
     </div>
   );
 }
-

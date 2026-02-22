@@ -17,7 +17,8 @@ export default function Sidebar() {
       { label: "Availability", path: "/dashboard/reception/availability" },
       { label: "Availability Week", path: "/dashboard/reception/availability-week" },
       { label: "Check In", path: "/dashboard/reception/checkin" },
-      { label: "Active Stays", path: "/dashboard/reception/active-stays" }
+      { label: "Active Stays", path: "/dashboard/reception/active-stays" },
+      { label: "Rooms To Clean", path: "/dashboard/housekeeping/pending" }
     );
   }
 

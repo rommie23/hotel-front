@@ -1,13 +1,15 @@
 import { useState, useRef } from "react";
-import { getRevenueReport } from "../../api/reports.api";
-import StatCard from "../../components/StatCard";
-import { formatHotelDateCA } from "../../utils/dateTime";
+import { getRevenueReport } from "../../../api/reports.api";
+import StatCard from "../../../components/StatCard";
+import { formatHotelDateCA } from "../../../utils/dateTime";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
-export default function Revenue() {
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
+export default function RevenueReport() {
+  const today = new Date().toISOString().slice(0, 10);
+
+  const [fromDate, setFromDate] = useState(today);
+  const [toDate, setToDate] = useState(today);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
   const [chargesType, setChargesType] = useState([]);
@@ -15,6 +17,8 @@ export default function Revenue() {
   const [error, setError] = useState("");
 
   const tableRef = useRef();
+
+
 
   const handleGenerate = async () => {
     if (!fromDate || !toDate) {

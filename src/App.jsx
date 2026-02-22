@@ -14,10 +14,10 @@ import StayBilling from "./pages/reception/StayBilling";
 import CheckOut from "./pages/reception/CheckOut";
 
 // Housekeeping
-// import PendingRooms from "./pages/housekeeping/PendingRooms";
+import CleaningBoard from "./pages/housekeeping/CleaningBoard";
 
 // Manager
-import Reports from "./pages/manager/Reports";
+import Reports from "./pages/manager/reports/Reports";
 import Revenue from "./pages/manager/Revenue";
 import AvailabilityWeek from "./pages/reception/AvailabilityWeek";
 // import Occupancy from "./pages/manager/Occupancy";
@@ -99,14 +99,14 @@ function App() {
         />
 
         {/* HOUSEKEEPING */}
-        {/* <Route
+        <Route
           path="housekeeping/pending"
           element={
-            <RoleRoute allowedRoles={["HOUSEKEEPING"]}>
-              <PendingRooms />
+            <RoleRoute allowedRoles={["HOUSEKEEPING", "RECEPTION" ]}>
+              <CleaningBoard />
             </RoleRoute>
           }
-        /> */}
+        />
 
         {/* MANAGER / ADMIN */}
         <Route

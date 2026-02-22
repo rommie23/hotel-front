@@ -76,3 +76,76 @@ export function formatISOInTZ(date) {
 
   return `${map.year}-${map.month}-${map.day} ${map.hour}:${map.minute}:${map.second}`;
 }
+
+
+export const formatHotelDateTime = (
+  utcString,
+  hotelTimezone
+) => {
+
+  if (!utcString) return "";
+
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: hotelTimezone,
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true
+  }).format(new Date(utcString));
+
+};
+
+
+export const formatHotelTime = (
+  utcString,
+  hotelTimezone
+) => {
+
+  if (!utcString) return "";
+
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: hotelTimezone,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true
+  }).format(new Date(utcString));
+
+};
+
+
+export const formatHotelDate = (
+  dateString,
+  hotelTimezone
+) => {
+
+  if (!dateString) return "";
+
+  const date = new Date(dateString);
+
+  if (isNaN(date)) return "";
+
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: hotelTimezone || "UTC",
+    year: "numeric",
+    month: "short",
+    day: "2-digit"
+  }).format(date);
+
+};
+
+
+// Format UTC date to Canadian date with weekday
+export const formatHotelDateCA = (utcString, timezone="America/Toronto") => {
+  if (!utcString) return "";
+  const date = new Date(utcString);
+  if (isNaN(date)) return "";
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: timezone,
+    weekday: "short",
+    year: "numeric",
+    month: "short",
+    day: "numeric"
+  }).format(date);
+};

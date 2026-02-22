@@ -7,10 +7,10 @@ export const getDailySummary = async () => {
 };
 
 // Revenue report (date range)
-export const getRevenueReport = async (fromDate, toDate) => {
+export const getRevenueReport = async (from, to) => {
   const res = await api.post("/reports/revenue", {
-    fromDate,
-    toDate,
+    from,
+    to,
   });
   return res.data;
 };
@@ -18,5 +18,10 @@ export const getRevenueReport = async (fromDate, toDate) => {
 // Occupancy report
 export const getOccupancyReport = async () => {
   const res = await api.get("/reports/occupancy");
+  return res.data;
+};
+
+export const getCompleteOccupancyReport = async (from, to) => {
+  const res = await api.get("/reports/complete-occupancy",{params:{from,to}});
   return res.data;
 };

@@ -1,9 +1,16 @@
 import api from "./axios";
 
-export const checkInGuest = async (payload) => {
-  const res = await api.post("/stays/checkin", payload);
-  return res.data;
-};
+// export const checkInGuest = async (payload) => {
+//   const res = await api.post("/stays/checkin", payload);
+//   return res.data;
+// };
+
+export const checkInGuest = (formData) =>
+  api.post("/stays/checkin", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data"
+    }
+  });
 
 export const getActiveStays = async () => {
   const res = await api.get("/stays/active");

@@ -1,33 +1,295 @@
+// import { useState } from "react";
+// import { getAvailableRooms } from "../../api/rooms.api";
+// import { checkInGuest } from "../../api/stays.api";
+
+// export default function CheckIn() {
+//     // Guest
+//     const [name, setName] = useState("");
+//     const [phone, setPhone] = useState("");
+//     const [email, setEmail] = useState("");
+//     const [idType, setIdType] = useState("");
+//     const [idNumber, setIdNumber] = useState("");
+
+
+//     // Stay
+//     const [checkinDate, setCheckinDate] = useState("");
+//     const [checkoutDate, setCheckoutDate] = useState("");
+//     const [advanceAmount, setAdvanceAmount] = useState("");
+//     const [paymentMode, setPaymentMode] = useState("");
+
+//     // Rooms
+//     const [rooms, setRooms] = useState([]);
+//     const [roomId, setRoomId] = useState("");
+
+//     // UI
+//     const [loading, setLoading] = useState(false);
+//     const [message, setMessage] = useState("");
+//     const [error, setError] = useState("");
+
+//     //file Upload
+//     const [photo, setPhoto] = useState(null);
+
+//     const fetchRooms = async () => {
+//         if (!checkinDate || !checkoutDate) {
+//             setError("Select check-in and check-out dates");
+//             return;
+//         }
+
+//         try {
+//             setLoading(true);
+//             setError("");
+//             const res = await getAvailableRooms(checkinDate, checkoutDate);
+//             setRooms(res.rooms || []);
+//         } catch (err) {
+//             setError("Failed to fetch available rooms");
+//         } finally {
+//             setLoading(false);
+//         }
+//     };
+
+//     const handleSubmit = async () => {
+//         if (!name || !phone || !roomId) {
+//             setError("Guest name, phone and room are required");
+//             return;
+//         }
+
+//         try {
+//             setLoading(true);
+//             setError("");
+//             setMessage("");
+
+//             const formData = new FormData();
+
+//             // guest fields
+//             formData.append("full_name", name);
+//             formData.append("phone", phone);
+//             formData.append("email", email);
+//             formData.append("id_type", idType);
+//             formData.append("id_number", idNumber);
+
+//             // stay fields
+//             formData.append("roomId", roomId);
+//             formData.append("from", checkinDate);
+//             formData.append("to", checkoutDate);
+//             formData.append("payment", advanceAmount || 0);
+//             formData.append("paymentMode", paymentMode || '');
+
+//             // photo (optional)
+//             if (photo) {
+//                 formData.append("photo", photo);
+//             }
+
+//             const res = await checkInGuest(formData);
+//             console.log(res);
+            
+
+//             setMessage(
+//                 `Check-in successful. Stay ID: ${res.data.stayId}. Due: ₹${res.data.dueAmount}`
+//             );
+
+//             // reset
+//             setName("");
+//             setPhone("");
+//             setEmail("");
+//             setRoomId("");
+//             setAdvanceAmount("");
+//             setPhoto(null);
+
+//         } catch (err) {
+//             console.error(err);
+//             setError("Check-in failed");
+//         } finally {
+//             setLoading(false);
+//         }
+//     };
+
+
+//     return (
+//         <div className="max-w-4xl">
+//             <h2 className="text-2xl font-bold mb-6">Guest Check-In</h2>
+
+//             {/* Guest Details */}
+//             <div className="bg-white p-6 rounded-xl shadow mb-6">
+//                 <h3 className="font-semibold mb-4">Guest Details</h3>
+
+//                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+//                     <input
+//                         className="border px-3 py-2 rounded-lg"
+//                         placeholder="Guest Name"
+//                         value={name}
+//                         onChange={(e) => setName(e.target.value)}
+//                     />
+//                     <input
+//                         className="border px-3 py-2 rounded-lg"
+//                         placeholder="Phone"
+//                         value={phone}
+//                         onChange={(e) => setPhone(e.target.value)}
+//                     />
+//                     <input
+//                         className="border px-3 py-2 rounded-lg"
+//                         placeholder="Email (optional)"
+//                         value={email}
+//                         onChange={(e) => setEmail(e.target.value)}
+//                     />
+//                 </div>
+//                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+//                     <select
+//                         className="border px-3 py-2 rounded-lg"
+//                         value={idType}
+//                         onChange={(e) => setIdType(e.target.value)}
+//                     >
+//                         <option value="">Select ID Type</option>
+//                         <option value="PASSPORT">Passport</option>
+//                         <option value="AADHAAR">Aadhaar</option>
+//                         <option value="DRIVING_LICENSE">Driving License</option>
+//                         <option value="OTHER">Other</option>
+//                     </select>
+
+//                     <input
+//                         className="border px-3 py-2 rounded-lg"
+//                         placeholder="ID Number"
+//                         value={idNumber}
+//                         onChange={(e) => setIdNumber(e.target.value)}
+//                     />
+//                     <button
+//                         className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
+//                     >
+//                         <input
+//                             type="file"
+//                             accept="image/*"
+//                             onChange={(e) => setPhoto(e.target.files[0])}
+//                         />
+//                     </button>
+//                 </div>
+//             </div>
+
+//             {/* Stay Dates */}
+//             <div className="bg-white p-6 rounded-xl shadow mb-6">
+//                 <h3 className="font-semibold mb-4">Stay Details</h3>
+
+//                 <div className="flex flex-wrap gap-4 items-end">
+//                     <div>
+//                         <label className="block text-sm mb-1">Check-in</label>
+//                         <input
+//                             type="date"
+//                             className="border px-3 py-2 rounded-lg"
+//                             value={checkinDate}
+//                             onChange={(e) => setCheckinDate(e.target.value)}
+//                         />
+//                     </div>
+
+//                     <div>
+//                         <label className="block text-sm mb-1">Check-out</label>
+//                         <input
+//                             type="date"
+//                             className="border px-3 py-2 rounded-lg"
+//                             value={checkoutDate}
+//                             onChange={(e) => setCheckoutDate(e.target.value)}
+//                         />
+//                     </div>
+
+//                     <button
+//                         onClick={fetchRooms}
+//                         className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
+//                     >
+//                         Check Availability
+//                     </button>
+//                 </div>
+//             </div>
+
+//             {/* Room Selection */}
+//             {rooms.length > 0 && (
+//                 <div className="bg-white p-6 rounded-xl shadow mb-6">
+//                     <h3 className="font-semibold mb-4">Select Room</h3>
+
+//                     <select
+//                         className="border px-3 py-2 rounded-lg w-full"
+//                         value={roomId}
+//                         onChange={(e) => setRoomId(e.target.value)}
+//                     >
+//                         <option value="">Select room</option>
+//                         {rooms.map((room) => (
+//                             <option key={room.id} value={room.id}>
+//                                 Room {room.room_number} – ₹{room.base_price}/night
+//                             </option>
+//                         ))}
+//                     </select>
+//                 </div>
+//             )}
+
+//             {/* Payment */}
+//             <div className="bg-white p-6 rounded-xl shadow mb-6">
+//                 <h3 className="font-semibold mb-4">Advance Payment (Optional)</h3>
+//                 <select
+//                         className="border px-3 py-2 rounded-lg mr-3"
+//                         value={paymentMode}
+//                         onChange={(e) => setPaymentMode(e.target.value)}
+//                     >
+//                         <option value="">Payment Mode</option>
+//                         <option value="Cash">Cash</option>
+//                         <option value="Card">Card</option>
+//                         <option value="Scanner">Scanner</option>
+//                         <option value="Other">Other</option>
+//                     </select>
+//                 <input
+//                     type="number"
+//                     className="border px-3 py-2 rounded-lg"
+//                     placeholder="Amount"
+//                     value={advanceAmount}
+//                     onChange={(e) => setAdvanceAmount(e.target.value)}
+//                 />
+//             </div>
+
+//             {/* Messages */}
+//             {error && <p className="text-red-500 mb-4">{error}</p>}
+//             {message && <p className="text-green-600 mb-4">{message}</p>}
+
+//             {/* Submit */}
+//             <button
+//                 onClick={handleSubmit}
+//                 disabled={loading}
+//                 className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700"
+//             >
+//                 {loading ? "Processing..." : "Confirm Check-In"}
+//             </button>
+//         </div>
+//     );
+// }
+
+
 import { useState } from "react";
 import { getAvailableRooms } from "../../api/rooms.api";
 import { checkInGuest } from "../../api/stays.api";
 
 export default function CheckIn() {
-    // Guest
+    // Guest Details State
     const [name, setName] = useState("");
     const [phone, setPhone] = useState("");
     const [email, setEmail] = useState("");
     const [idType, setIdType] = useState("");
     const [idNumber, setIdNumber] = useState("");
 
-
-    // Stay
+    // Stay Details State
     const [checkinDate, setCheckinDate] = useState("");
     const [checkoutDate, setCheckoutDate] = useState("");
     const [advanceAmount, setAdvanceAmount] = useState("");
+    const [paymentMode, setPaymentMode] = useState("");
 
-    // Rooms
+    // Rooms State
     const [rooms, setRooms] = useState([]);
     const [roomId, setRoomId] = useState("");
 
-    // UI
+    // UI State
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
 
+    // File Upload State
+    const [photo, setPhoto] = useState(null);
+
     const fetchRooms = async () => {
         if (!checkinDate || !checkoutDate) {
-            setError("Select check-in and check-out dates");
+            setError("Please select both check-in and check-out dates");
             return;
         }
 
@@ -37,7 +299,7 @@ export default function CheckIn() {
             const res = await getAvailableRooms(checkinDate, checkoutDate);
             setRooms(res.rooms || []);
         } catch (err) {
-            setError("Failed to fetch available rooms");
+            setError("Failed to fetch available rooms. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -45,7 +307,7 @@ export default function CheckIn() {
 
     const handleSubmit = async () => {
         if (!name || !phone || !roomId) {
-            setError("Guest name, phone and room are required");
+            setError("Guest name, phone number, and room are required");
             return;
         }
 
@@ -54,164 +316,313 @@ export default function CheckIn() {
             setError("");
             setMessage("");
 
-            const payload = {
-                guest: { full_name: name, phone, email, id_type: idType, id_number: idNumber },
-                roomId,
-                from: checkinDate,
-                to: checkoutDate,
-                payment: advanceAmount ? Number(advanceAmount) : 0,
-            };
+            const formData = new FormData();
 
-            const res = await checkInGuest(payload);
+            // Guest fields
+            formData.append("full_name", name);
+            formData.append("phone", phone);
+            formData.append("email", email);
+            formData.append("id_type", idType);
+            formData.append("id_number", idNumber);
+
+            // Stay fields
+            formData.append("roomId", roomId);
+            formData.append("from", checkinDate);
+            formData.append("to", checkoutDate);
+            formData.append("payment", advanceAmount || 0);
+            formData.append("paymentMode", paymentMode || '');
+
+            // Guest photo (optional)
+            if (photo) {
+                formData.append("photo", photo);
+            }
+
+            const res = await checkInGuest(formData);
+            console.log(res);
 
             setMessage(
-                `Check-in successful. Stay ID: ${res.stayId}. Due: ₹${res.dueAmount}`
+                `Check-in successful! Stay ID: ${res.data.stayId} | Due: ₹${res.data.dueAmount}`
             );
 
-            // reset form (optional)
+            // Reset form
             setName("");
             setPhone("");
             setEmail("");
+            setIdType("");
+            setIdNumber("");
             setRoomId("");
-            setRooms([]);
             setAdvanceAmount("");
+            setPaymentMode("");
+            setPhoto(null);
+            setRooms([]);
+            setCheckinDate("");
+            setCheckoutDate("");
 
         } catch (err) {
             console.error(err);
-            setError("Check-in failed");
+            setError("Check-in failed. Please verify all details and try again.");
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="max-w-4xl">
-            <h2 className="text-2xl font-bold mb-6">Guest Check-In</h2>
+        <div className="max-w-6xl mx-auto">
+            {/* Page Header */}
+            <div className="mb-8">
+                <h2 className="text-2xl font-bold text-gray-800">Guest Check-In</h2>
+                <p className="text-gray-600 mt-1">Complete the form to check in a new guest</p>
+            </div>
 
-            {/* Guest Details */}
-            <div className="bg-white p-6 rounded-xl shadow mb-6">
-                <h3 className="font-semibold mb-4">Guest Details</h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <input
-                        className="border px-3 py-2 rounded-lg"
-                        placeholder="Guest Name"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                    />
-                    <input
-                        className="border px-3 py-2 rounded-lg"
-                        placeholder="Phone"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                    />
-                    <input
-                        className="border px-3 py-2 rounded-lg"
-                        placeholder="Email (optional)"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                    />
+            {/* Guest Details Section */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
+                <div className="p-6 border-b border-gray-100">
+                    <h3 className="text-lg font-semibold text-gray-800">Guest Details</h3>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                    <select
-                        className="border px-3 py-2 rounded-lg"
-                        value={idType}
-                        onChange={(e) => setIdType(e.target.value)}
-                    >
-                        <option value="">Select ID Type</option>
-                        <option value="PASSPORT">Passport</option>
-                        <option value="AADHAAR">Aadhaar</option>
-                        <option value="DRIVING_LICENSE">Driving License</option>
-                        <option value="OTHER">Other</option>
-                    </select>
+                
+                <div className="p-6 space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Full Name <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                                placeholder="Enter guest name"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                            />
+                        </div>
+                        
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Phone Number <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="tel"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                                placeholder="Enter phone number"
+                                value={phone}
+                                onChange={(e) => setPhone(e.target.value)}
+                            />
+                        </div>
+                        
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Email Address
+                            </label>
+                            <input
+                                type="email"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                                placeholder="Enter email (optional)"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                            />
+                        </div>
+                    </div>
 
-                    <input
-                        className="border px-3 py-2 rounded-lg"
-                        placeholder="ID Number"
-                        value={idNumber}
-                        onChange={(e) => setIdNumber(e.target.value)}
-                    />
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                ID Type
+                            </label>
+                            <select
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition bg-white"
+                                value={idType}
+                                onChange={(e) => setIdType(e.target.value)}
+                            >
+                                <option value="">Select ID type</option>
+                                <option value="PASSPORT">Passport</option>
+                                <option value="AADHAAR">Aadhaar</option>
+                                <option value="DRIVING_LICENSE">Driving License</option>
+                                <option value="OTHER">Other</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                ID Number
+                            </label>
+                            <input
+                                type="text"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                                placeholder="Enter ID number"
+                                value={idNumber}
+                                onChange={(e) => setIdNumber(e.target.value)}
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Guest Photo
+                            </label>
+                            <div className="flex items-center">
+                                <label className="cursor-pointer bg-gray-50 hover:bg-gray-100 px-4 py-2 border border-gray-300 rounded-lg transition flex items-center gap-2">
+                                    <span className="text-sm text-gray-700">Upload photo</span>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        className="hidden"
+                                        onChange={(e) => setPhoto(e.target.files[0])}
+                                    />
+                                </label>
+                                {photo && (
+                                    <span className="ml-3 text-sm text-gray-600 truncate max-w-45">
+                                        {photo.name}
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            {/* Stay Dates */}
-            <div className="bg-white p-6 rounded-xl shadow mb-6">
-                <h3 className="font-semibold mb-4">Stay Details</h3>
+            {/* Stay Details Section */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
+                <div className="p-6 border-b border-gray-100">
+                    <h3 className="text-lg font-semibold text-gray-800">Stay Details</h3>
+                </div>
+                
+                <div className="p-6">
+                    <div className="flex flex-wrap items-end gap-4">
+                        <div className="w-full sm:w-auto">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Check-in Date <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="date"
+                                className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                                value={checkinDate}
+                                onChange={(e) => setCheckinDate(e.target.value)}
+                            />
+                        </div>
 
-                <div className="flex flex-wrap gap-4 items-end">
-                    <div>
-                        <label className="block text-sm mb-1">Check-in</label>
-                        <input
-                            type="date"
-                            className="border px-3 py-2 rounded-lg"
-                            value={checkinDate}
-                            onChange={(e) => setCheckinDate(e.target.value)}
-                        />
+                        <div className="w-full sm:w-auto">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Check-out Date <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="date"
+                                className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                                value={checkoutDate}
+                                onChange={(e) => setCheckoutDate(e.target.value)}
+                            />
+                        </div>
+
+                        <button
+                            onClick={fetchRooms}
+                            disabled={loading}
+                            className="w-full sm:w-auto px-6 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-200 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {loading ? "Checking..." : "Check Availability"}
+                        </button>
                     </div>
-
-                    <div>
-                        <label className="block text-sm mb-1">Check-out</label>
-                        <input
-                            type="date"
-                            className="border px-3 py-2 rounded-lg"
-                            value={checkoutDate}
-                            onChange={(e) => setCheckoutDate(e.target.value)}
-                        />
-                    </div>
-
-                    <button
-                        onClick={fetchRooms}
-                        className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
-                    >
-                        Check Availability
-                    </button>
                 </div>
             </div>
 
-            {/* Room Selection */}
+            {/* Room Selection Section */}
             {rooms.length > 0 && (
-                <div className="bg-white p-6 rounded-xl shadow mb-6">
-                    <h3 className="font-semibold mb-4">Select Room</h3>
-
-                    <select
-                        className="border px-3 py-2 rounded-lg w-full"
-                        value={roomId}
-                        onChange={(e) => setRoomId(e.target.value)}
-                    >
-                        <option value="">Select room</option>
-                        {rooms.map((room) => (
-                            <option key={room.id} value={room.id}>
-                                Room {room.room_number} – ₹{room.base_price}/night
-                            </option>
-                        ))}
-                    </select>
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 mb-6 animate-fadeIn">
+                    <div className="p-6 border-b border-gray-100">
+                        <h3 className="text-lg font-semibold text-gray-800">Select Room</h3>
+                        <p className="text-sm text-gray-600 mt-1">
+                            {rooms.length} room{rooms.length !== 1 ? 's' : ''} available
+                        </p>
+                    </div>
+                    
+                    <div className="p-6">
+                        <select
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition bg-white"
+                            value={roomId}
+                            onChange={(e) => setRoomId(e.target.value)}
+                        >
+                            <option value="">Choose a room</option>
+                            {rooms.map((room) => (
+                                <option key={room.id} value={room.id}>
+                                    Room {room.room_number} — ₹{room.base_price}/night
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
             )}
 
-            {/* Payment */}
-            <div className="bg-white p-6 rounded-xl shadow mb-6">
-                <h3 className="font-semibold mb-4">Advance Payment (Optional)</h3>
-                <input
-                    type="number"
-                    className="border px-3 py-2 rounded-lg"
-                    placeholder="Amount"
-                    value={advanceAmount}
-                    onChange={(e) => setAdvanceAmount(e.target.value)}
-                />
+            {/* Payment Section */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
+                <div className="p-6 border-b border-gray-100">
+                    <h3 className="text-lg font-semibold text-gray-800">Advance Payment</h3>
+                    <p className="text-sm text-gray-600 mt-1">Optional, can be completed later</p>
+                </div>
+                
+                <div className="p-6">
+                    <div className="flex flex-wrap items-center gap-4">
+                        <div className="w-full sm:w-48">
+                            <select
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition bg-white"
+                                value={paymentMode}
+                                onChange={(e) => setPaymentMode(e.target.value)}
+                            >
+                                <option value="">Select payment mode</option>
+                                <option value="Cash">Cash</option>
+                                <option value="Card">Card</option>
+                                <option value="Scanner">Scanner</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        <div className="flex-1 min-w-50">
+                            <div className="relative">
+                                <span className="absolute left-3 top-2 text-gray-500">₹</span>
+                                <input
+                                    type="number"
+                                    className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                                    placeholder="Amount"
+                                    value={advanceAmount}
+                                    onChange={(e) => setAdvanceAmount(e.target.value)}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            {/* Messages */}
-            {error && <p className="text-red-500 mb-4">{error}</p>}
-            {message && <p className="text-green-600 mb-4">{message}</p>}
+            {/* Status Messages */}
+            {error && (
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-red-600 text-sm flex items-center gap-2">
+                        <span className="inline-block w-1.5 h-1.5 bg-red-600 rounded-full"></span>
+                        {error}
+                    </p>
+                </div>
+            )}
+            
+            {message && (
+                <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <p className="text-green-700 text-sm flex items-center gap-2">
+                        <span className="inline-block w-1.5 h-1.5 bg-green-600 rounded-full"></span>
+                        {message}
+                    </p>
+                </div>
+            )}
 
-            {/* Submit */}
-            <button
-                onClick={handleSubmit}
-                disabled={loading}
-                className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700"
-            >
-                {loading ? "Processing..." : "Confirm Check-In"}
-            </button>
+            {/* Submit Button */}
+            <div className="flex justify-end">
+                <button
+                    onClick={handleSubmit}
+                    disabled={loading}
+                    className="px-8 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 focus:ring-4 focus:ring-green-200 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                    {loading ? (
+                        <>
+                            <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                            Processing...
+                        </>
+                    ) : (
+                        "Confirm Check-In"
+                    )}
+                </button>
+            </div>
         </div>
     );
 }

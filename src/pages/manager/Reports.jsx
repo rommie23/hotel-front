@@ -13,6 +13,8 @@ export default function Reports() {
       try {
         const data = await getDailySummary();
         setSummary(data);
+        console.log(data);
+        
       } catch (err) {
         console.error(err);
       } finally {
@@ -30,7 +32,6 @@ export default function Reports() {
   return (
     <div>
       <h2 className="text-2xl font-bold mb-6">Reports Overview</h2>
-
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <StatCard
@@ -46,7 +47,6 @@ export default function Reports() {
           value={summary?.activeStays || 0}
         />
       </div>
-
       {/* Report Links */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
