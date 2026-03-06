@@ -21,7 +21,6 @@ export default function Reports() {
         setLoading(false);
       }
     };
-
     fetchSummary();
   }, []);
 

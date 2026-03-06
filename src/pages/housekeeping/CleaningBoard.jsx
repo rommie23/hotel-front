@@ -89,7 +89,7 @@ export default function CleaningBoard() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-[400px]">
+            <div className="flex items-center justify-center min-h-100">
                 <div className="text-center">
                     <div className="inline-block w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mb-3"></div>
                     <p className="text-gray-600">Loading cleaning tasks...</p>
@@ -163,7 +163,7 @@ export default function CleaningBoard() {
                                 className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden hover:shadow-md transition"
                             >
                                 {/* Room Header */}
-                                <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-white border-b border-gray-200">
+                                <div className="px-6 py-4 bg-linear-to-r from-gray-50 to-white border-b border-gray-200">
                                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                         <div className="flex items-center gap-3">
                                             <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
@@ -389,24 +389,3 @@ export default function CleaningBoard() {
         </div>
     );
 }
-
-
-
-
-// reservation table
-
-// availability locking
-
-// overbooking prevention
-
-// calendar blocking
-
-// status lifecycle
-
-// reservation → check-in conversion
-
-// deposit handling
-
-// cancellation policy
-
-// no-show logic

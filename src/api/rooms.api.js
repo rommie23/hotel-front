@@ -8,3 +8,7 @@ export const getAvailableRooms = async (from, to) => {
   return res.data;
 };
 
+export const getRoomTypes = async () => {
+  const res = await api.get("/rooms/room-types");  
+  return res.data.data;
+};

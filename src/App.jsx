@@ -20,6 +20,10 @@ import CleaningBoard from "./pages/housekeeping/CleaningBoard";
 import Reports from "./pages/manager/reports/Reports";
 import Revenue from "./pages/manager/Revenue";
 import AvailabilityWeek from "./pages/reception/AvailabilityWeek";
+import CreateService from "./pages/manager/services/CreateService";
+import CreateRoom from "./pages/manager/rooms/CreateRoom";
+import RoomCategories from "./pages/manager/rooms/RoomCategories";
+import StaffManagement from "./pages/manager/staff/StaffManagement";
 // import Occupancy from "./pages/manager/Occupancy";
 
 function App() {
@@ -127,14 +131,38 @@ function App() {
           }
         />
 
-        {/* <Route
-          path="manager/occupancy"
+        <Route
+          path="manager/manage-services"
           element={
             <RoleRoute allowedRoles={["ADMIN", "MANAGER"]}>
-              <Occupancy />
+              <CreateService />
             </RoleRoute>
           }
-        /> */}
+        />
+        <Route
+          path="manager/manage-rooms"
+          element={
+            <RoleRoute allowedRoles={["ADMIN", "MANAGER"]}>
+              <CreateRoom />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="manager/manage-room-categories"
+          element={
+            <RoleRoute allowedRoles={["ADMIN", "MANAGER"]}>
+              <RoomCategories />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="manager/manage-staff"
+          element={
+            <RoleRoute allowedRoles={["ADMIN", "MANAGER"]}>
+              <StaffManagement />
+            </RoleRoute>
+          }
+        />
       </Route>
 
       {/* Fallback */}

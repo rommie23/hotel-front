@@ -20,7 +20,7 @@ export default function ActiveStays() {
     try {
       setLoading(true);
       const res = await getRoomBoard();
-      console.log(res);
+      // console.log(res);
       setRooms(res.rooms || res);
     } catch (err) {
       console.error(err);
@@ -50,8 +50,8 @@ export default function ActiveStays() {
         className={`
           rounded-xl border border-gray-200 bg-white p-4
           transition-all duration-200
-          ${dragging 
-            ? "shadow-2xl scale-105 ring-2 ring-indigo-400" 
+          ${dragging
+            ? "shadow-2xl scale-105 ring-2 ring-indigo-400"
             : "shadow-sm hover:shadow-md"
           }
         `}
@@ -221,8 +221,8 @@ export default function ActiveStays() {
       >
         <div className="space-y-4">
           {rooms.map(room => (
-            <div 
-              key={room.roomId} 
+            <div
+              key={room.roomId}
               className="flex border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm"
             >
               {/* Room Sidebar */}
@@ -232,8 +232,8 @@ export default function ActiveStays() {
                 </span>
                 <span className={`
                   inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium mt-2 w-fit
-                  ${room.roomStatus === "READY" 
-                    ? "bg-green-100 text-green-800" 
+                  ${room.roomStatus === "READY"
+                    ? "bg-green-100 text-green-800"
                     : "bg-yellow-100 text-yellow-800"
                   }
                 `}>
@@ -247,7 +247,7 @@ export default function ActiveStays() {
                   <StayCard room={room} />
                 ) : (
                   <div className="h-full flex items-center justify-center min-h-35">
-                    <p className="text-gray-400 italic text-sm">✨ Empty room • {`${room.roomStatus}`.charAt(0).toUpperCase() + `${room.roomStatus}`.slice(1).toLowerCase(  )} for check-in</p>
+                    <p className="text-gray-400 italic text-sm">✨ Empty room • {`${room.roomStatus}`.charAt(0).toUpperCase() + `${room.roomStatus}`.slice(1).toLowerCase()} for check-in</p>
                   </div>
                 )}
               </RoomDropZone>
