@@ -13,7 +13,8 @@ import {
   ArrowRightOnRectangleIcon,
   ArrowLeftOnRectangleIcon,
   CurrencyDollarIcon,
-  CreditCardIcon
+  CreditCardIcon,
+  ArrowRightCircleIcon
 } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router-dom";
 
@@ -301,7 +302,7 @@ export default function Dashboard() {
                         className="text-amber-600 hover:text-amber-800 p-1"
                         title="Checkout"
                       >
-                        <ArrowRightCircleIcon className="w-3.5 h-3.5" />
+                        {/* <ArrowRightCircleIcon className="w-3.5 h-3.5" /> */}
                       </button>
                     </td>
                   </tr>

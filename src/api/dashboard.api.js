@@ -10,4 +10,5 @@ export const getTodayArrivals = async () => {
 export const getTodayCheckouts = async () => {
   const response = await axios.get("/dashboard/today-checkouts");
   return response.data;
+  
 };

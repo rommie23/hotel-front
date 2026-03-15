@@ -24,6 +24,7 @@ import CreateService from "./pages/manager/services/CreateService";
 import CreateRoom from "./pages/manager/rooms/CreateRoom";
 import RoomCategories from "./pages/manager/rooms/RoomCategories";
 import StaffManagement from "./pages/manager/staff/StaffManagement";
+import Reservations from "./pages/reservations/Reservations";
 // import Occupancy from "./pages/manager/Occupancy";
 
 function App() {
@@ -101,6 +102,14 @@ function App() {
             </RoleRoute>
           }
         />
+        <Route
+          path="reception/manage-reservation"
+          element={
+            <RoleRoute allowedRoles={["ADMIN", "MANAGER", "RECEPTION"]}>
+              <Reservations />
+            </RoleRoute>
+          }
+        />
 
         {/* HOUSEKEEPING */}
         <Route
@@ -163,6 +172,15 @@ function App() {
             </RoleRoute>
           }
         />
+        <Route
+          path="manager/manage-staff"
+          element={
+            <RoleRoute allowedRoles={["ADMIN", "MANAGER"]}>
+              <StaffManagement />
+            </RoleRoute>
+          }
+        />
+        
       </Route>
 
       {/* Fallback */}

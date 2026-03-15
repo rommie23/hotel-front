@@ -70,7 +70,7 @@ export default function ActiveStays() {
           {/* Status Badge & Drag Handle */}
           <div className="flex items-center gap-2">
             <span className="bg-red-100 text-red-700 px-3 py-1.5 rounded-lg text-xs font-medium">
-              Due: ₹{room.dueAmount}
+              Due: ${room.dueAmount}
             </span>
             <div
               {...listeners}

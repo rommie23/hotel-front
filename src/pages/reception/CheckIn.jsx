@@ -1,262 +1,3 @@
-// import { useState } from "react";
-// import { getAvailableRooms } from "../../api/rooms.api";
-// import { checkInGuest } from "../../api/stays.api";
-
-// export default function CheckIn() {
-//     // Guest
-//     const [name, setName] = useState("");
-//     const [phone, setPhone] = useState("");
-//     const [email, setEmail] = useState("");
-//     const [idType, setIdType] = useState("");
-//     const [idNumber, setIdNumber] = useState("");
-
-
-//     // Stay
-//     const [checkinDate, setCheckinDate] = useState("");
-//     const [checkoutDate, setCheckoutDate] = useState("");
-//     const [advanceAmount, setAdvanceAmount] = useState("");
-//     const [paymentMode, setPaymentMode] = useState("");
-
-//     // Rooms
-//     const [rooms, setRooms] = useState([]);
-//     const [roomId, setRoomId] = useState("");
-
-//     // UI
-//     const [loading, setLoading] = useState(false);
-//     const [message, setMessage] = useState("");
-//     const [error, setError] = useState("");
-
-//     //file Upload
-//     const [photo, setPhoto] = useState(null);
-
-//     const fetchRooms = async () => {
-//         if (!checkinDate || !checkoutDate) {
-//             setError("Select check-in and check-out dates");
-//             return;
-//         }
-
-//         try {
-//             setLoading(true);
-//             setError("");
-//             const res = await getAvailableRooms(checkinDate, checkoutDate);
-//             setRooms(res.rooms || []);
-//         } catch (err) {
-//             setError("Failed to fetch available rooms");
-//         } finally {
-//             setLoading(false);
-//         }
-//     };
-
-//     const handleSubmit = async () => {
-//         if (!name || !phone || !roomId) {
-//             setError("Guest name, phone and room are required");
-//             return;
-//         }
-
-//         try {
-//             setLoading(true);
-//             setError("");
-//             setMessage("");
-
-//             const formData = new FormData();
-
-//             // guest fields
-//             formData.append("full_name", name);
-//             formData.append("phone", phone);
-//             formData.append("email", email);
-//             formData.append("id_type", idType);
-//             formData.append("id_number", idNumber);
-
-//             // stay fields
-//             formData.append("roomId", roomId);
-//             formData.append("from", checkinDate);
-//             formData.append("to", checkoutDate);
-//             formData.append("payment", advanceAmount || 0);
-//             formData.append("paymentMode", paymentMode || '');
-
-//             // photo (optional)
-//             if (photo) {
-//                 formData.append("photo", photo);
-//             }
-
-//             const res = await checkInGuest(formData);
-//             console.log(res);
-            
-
-//             setMessage(
-//                 `Check-in successful. Stay ID: ${res.data.stayId}. Due: ₹${res.data.dueAmount}`
-//             );
-
-//             // reset
-//             setName("");
-//             setPhone("");
-//             setEmail("");
-//             setRoomId("");
-//             setAdvanceAmount("");
-//             setPhoto(null);
-
-//         } catch (err) {
-//             console.error(err);
-//             setError("Check-in failed");
-//         } finally {
-//             setLoading(false);
-//         }
-//     };
-
-
-//     return (
-//         <div className="max-w-4xl">
-//             <h2 className="text-2xl font-bold mb-6">Guest Check-In</h2>
-
-//             {/* Guest Details */}
-//             <div className="bg-white p-6 rounded-xl shadow mb-6">
-//                 <h3 className="font-semibold mb-4">Guest Details</h3>
-
-//                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-//                     <input
-//                         className="border px-3 py-2 rounded-lg"
-//                         placeholder="Guest Name"
-//                         value={name}
-//                         onChange={(e) => setName(e.target.value)}
-//                     />
-//                     <input
-//                         className="border px-3 py-2 rounded-lg"
-//                         placeholder="Phone"
-//                         value={phone}
-//                         onChange={(e) => setPhone(e.target.value)}
-//                     />
-//                     <input
-//                         className="border px-3 py-2 rounded-lg"
-//                         placeholder="Email (optional)"
-//                         value={email}
-//                         onChange={(e) => setEmail(e.target.value)}
-//                     />
-//                 </div>
-//                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-//                     <select
-//                         className="border px-3 py-2 rounded-lg"
-//                         value={idType}
-//                         onChange={(e) => setIdType(e.target.value)}
-//                     >
-//                         <option value="">Select ID Type</option>
-//                         <option value="PASSPORT">Passport</option>
-//                         <option value="AADHAAR">Aadhaar</option>
-//                         <option value="DRIVING_LICENSE">Driving License</option>
-//                         <option value="OTHER">Other</option>
-//                     </select>
-
-//                     <input
-//                         className="border px-3 py-2 rounded-lg"
-//                         placeholder="ID Number"
-//                         value={idNumber}
-//                         onChange={(e) => setIdNumber(e.target.value)}
-//                     />
-//                     <button
-//                         className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
-//                     >
-//                         <input
-//                             type="file"
-//                             accept="image/*"
-//                             onChange={(e) => setPhoto(e.target.files[0])}
-//                         />
-//                     </button>
-//                 </div>
-//             </div>
-
-//             {/* Stay Dates */}
-//             <div className="bg-white p-6 rounded-xl shadow mb-6">
-//                 <h3 className="font-semibold mb-4">Stay Details</h3>
-
-//                 <div className="flex flex-wrap gap-4 items-end">
-//                     <div>
-//                         <label className="block text-sm mb-1">Check-in</label>
-//                         <input
-//                             type="date"
-//                             className="border px-3 py-2 rounded-lg"
-//                             value={checkinDate}
-//                             onChange={(e) => setCheckinDate(e.target.value)}
-//                         />
-//                     </div>
-
-//                     <div>
-//                         <label className="block text-sm mb-1">Check-out</label>
-//                         <input
-//                             type="date"
-//                             className="border px-3 py-2 rounded-lg"
-//                             value={checkoutDate}
-//                             onChange={(e) => setCheckoutDate(e.target.value)}
-//                         />
-//                     </div>
-
-//                     <button
-//                         onClick={fetchRooms}
-//                         className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
-//                     >
-//                         Check Availability
-//                     </button>
-//                 </div>
-//             </div>
-
-//             {/* Room Selection */}
-//             {rooms.length > 0 && (
-//                 <div className="bg-white p-6 rounded-xl shadow mb-6">
-//                     <h3 className="font-semibold mb-4">Select Room</h3>
-
-//                     <select
-//                         className="border px-3 py-2 rounded-lg w-full"
-//                         value={roomId}
-//                         onChange={(e) => setRoomId(e.target.value)}
-//                     >
-//                         <option value="">Select room</option>
-//                         {rooms.map((room) => (
-//                             <option key={room.id} value={room.id}>
-//                                 Room {room.room_number} – ₹{room.base_price}/night
-//                             </option>
-//                         ))}
-//                     </select>
-//                 </div>
-//             )}
-
-//             {/* Payment */}
-//             <div className="bg-white p-6 rounded-xl shadow mb-6">
-//                 <h3 className="font-semibold mb-4">Advance Payment (Optional)</h3>
-//                 <select
-//                         className="border px-3 py-2 rounded-lg mr-3"
-//                         value={paymentMode}
-//                         onChange={(e) => setPaymentMode(e.target.value)}
-//                     >
-//                         <option value="">Payment Mode</option>
-//                         <option value="Cash">Cash</option>
-//                         <option value="Card">Card</option>
-//                         <option value="Scanner">Scanner</option>
-//                         <option value="Other">Other</option>
-//                     </select>
-//                 <input
-//                     type="number"
-//                     className="border px-3 py-2 rounded-lg"
-//                     placeholder="Amount"
-//                     value={advanceAmount}
-//                     onChange={(e) => setAdvanceAmount(e.target.value)}
-//                 />
-//             </div>
-
-//             {/* Messages */}
-//             {error && <p className="text-red-500 mb-4">{error}</p>}
-//             {message && <p className="text-green-600 mb-4">{message}</p>}
-
-//             {/* Submit */}
-//             <button
-//                 onClick={handleSubmit}
-//                 disabled={loading}
-//                 className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700"
-//             >
-//                 {loading ? "Processing..." : "Confirm Check-In"}
-//             </button>
-//         </div>
-//     );
-// }
-
-
 import { useState } from "react";
 import { getAvailableRooms } from "../../api/rooms.api";
 import { checkInGuest } from "../../api/stays.api";
@@ -379,7 +120,7 @@ export default function CheckIn() {
                 <div className="p-6 border-b border-gray-100">
                     <h3 className="text-lg font-semibold text-gray-800">Guest Details</h3>
                 </div>
-                
+
                 <div className="p-6 space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
@@ -394,7 +135,7 @@ export default function CheckIn() {
                                 onChange={(e) => setName(e.target.value)}
                             />
                         </div>
-                        
+
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                 Phone Number <span className="text-red-500">*</span>
@@ -407,7 +148,7 @@ export default function CheckIn() {
                                 onChange={(e) => setPhone(e.target.value)}
                             />
                         </div>
-                        
+
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                 Email Address
@@ -455,7 +196,7 @@ export default function CheckIn() {
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Guest Photo
+                                ID Photo
                             </label>
                             <div className="flex items-center">
                                 <label className="cursor-pointer bg-gray-50 hover:bg-gray-100 px-4 py-2 border border-gray-300 rounded-lg transition flex items-center gap-2">
@@ -483,7 +224,7 @@ export default function CheckIn() {
                 <div className="p-6 border-b border-gray-100">
                     <h3 className="text-lg font-semibold text-gray-800">Stay Details</h3>
                 </div>
-                
+
                 <div className="p-6">
                     <div className="flex flex-wrap items-end gap-4">
                         <div className="w-full sm:w-auto">
@@ -530,7 +271,7 @@ export default function CheckIn() {
                             {rooms.length} room{rooms.length !== 1 ? 's' : ''} available
                         </p>
                     </div>
-                    
+
                     <div className="p-6">
                         <select
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition bg-white"
@@ -554,7 +295,7 @@ export default function CheckIn() {
                     <h3 className="text-lg font-semibold text-gray-800">Advance Payment</h3>
                     <p className="text-sm text-gray-600 mt-1">Optional, can be completed later</p>
                 </div>
-                
+
                 <div className="p-6">
                     <div className="flex flex-wrap items-center gap-4">
                         <div className="w-full sm:w-48">
@@ -573,10 +314,10 @@ export default function CheckIn() {
 
                         <div className="flex-1 min-w-50">
                             <div className="relative">
-                                <span className="absolute left-3 top-2 text-gray-500">₹</span>
+                                <span className="absolute left-3 top-2 text-gray-500">$</span>
                                 <input
                                     type="number"
-                                    className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                                    className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                     placeholder="Amount"
                                     value={advanceAmount}
                                     onChange={(e) => setAdvanceAmount(e.target.value)}
@@ -596,7 +337,7 @@ export default function CheckIn() {
                     </p>
                 </div>
             )}
-            
+
             {message && (
                 <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
                     <p className="text-green-700 text-sm flex items-center gap-2">

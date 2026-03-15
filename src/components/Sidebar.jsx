@@ -49,7 +49,8 @@ export default function Sidebar() {
       { label: "Availability Week", path: "/dashboard/reception/availability-week" },
       { label: "Check In", path: "/dashboard/reception/checkin" },
       { label: "Active Stays", path: "/dashboard/reception/active-stays" },
-      { label: "Rooms To Clean", path: "/dashboard/housekeeping/pending" }
+      { label: "Rooms To Clean", path: "/dashboard/housekeeping/pending" },
+      { label: "Reservations", path: "/dashboard/reception/manage-reservation"}
     );
   }
 
@@ -68,7 +69,8 @@ export default function Sidebar() {
       { label: "Manage Services", path: "/dashboard/manager/manage-services" },
       { label: "Manage Rooms", path: "/dashboard/manager/manage-rooms" },
       { label: "Manage Room Categories", path: "/dashboard/manager/manage-room-categories" },
-      { label: "Manage Staff", path: "/dashboard/manager/manage-staff" }
+      { label: "Manage Staff", path: "/dashboard/manager/manage-staff" },
+      { label: "Reservations", path: "/dashboard/reception/manage-reservation"}
     );
   }
 

@@ -14,6 +14,16 @@ export default function StayBilling() {
   const [paymentMode, setPaymentMode] = useState("");
   const [paymentAmount, setPaymentAmount] = useState("");
   const [extendDialog, setExtendDialog] = useState(false);
+  const [actionType, setActionType] = useState(null);
+
+  // dates for comparisons
+  const today = new Date().toISOString().split("T")[0];
+  const checkoutDate = invoice?.stay?.expected_checkout_date?.split("T")[0];
+  const checkinDate = invoice?.stay?.checkin_at?.split("T")[0];
+
+  // comparing dates 
+  const canExtend = today === checkoutDate;
+  const canReduce = today >= checkinDate;
 
   const fetchInvoice = async () => {
     const res = await api.get(`/stays/${stayId}/invoice`);
@@ -66,6 +76,10 @@ export default function StayBilling() {
       setLoading(false);
     }
   };
+
+  const extendReduceButton = (buttonType) => {
+    setExtendDialog(true)
+  }
 
 
 
@@ -318,18 +332,18 @@ export default function StayBilling() {
             </div>
 
             <div className={`p-4 rounded-lg border ${invoice.summary.dueAmount > 0
-                ? "bg-red-50 border-red-200"
-                : "bg-emerald-50 border-emerald-200"
+              ? "bg-red-50 border-red-200"
+              : "bg-emerald-50 border-emerald-200"
               }`}>
               <p className={`text-xs uppercase tracking-wider mb-1 ${invoice.summary.dueAmount > 0
-                  ? "text-red-600"
-                  : "text-emerald-600"
+                ? "text-red-600"
+                : "text-emerald-600"
                 }`}>
                 {invoice.summary.dueAmount > 0 ? "Due Amount" : "Settled"}
               </p>
               <p className={`text-2xl font-bold ${invoice.summary.dueAmount > 0
-                  ? "text-red-700"
-                  : "text-emerald-700"
+                ? "text-red-700"
+                : "text-emerald-700"
                 }`}>
                 ${invoice.summary.dueAmount}
               </p>
@@ -367,35 +381,67 @@ export default function StayBilling() {
       </div>
 
       {/* Action Buttons */}
-      <div className="flex justify-end gap-3">
-        <button
-          onClick={() => window.history.back()}
-          className="px-6 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition"
-        >
-          Back
-        </button>
-        <button
-          onClick={() => {
-            // Print or download invoice
-            window.print();
-          }}
-          className="px-6 py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition flex items-center gap-2"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-          </svg>
-          Print Invoice
-        </button>
-        <button
+      <div className="flex justify-between gap-3">
+        <div className="flex justify-start gap-3">
+          <button
+            disabled={!canExtend}
+            onClick={() => {
+              setActionType("extend");
+              setExtendDialog(true);
+            }}
+            className={`px-4 py-2 rounded
+            ${canExtend
+                ? "bg-blue-600 text-white"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"}`}
+          >
+            Extend Stay
+          </button>
+          <button
+            disabled={!canReduce}
+            onClick={() => {
+              setActionType("reduce");
+              setExtendDialog(true);
+            }}
+            className={`px-4 py-2 rounded
+            ${canReduce
+                ? "bg-red-600 text-white"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"}`}
+          >
+            Reduce Stay
+          </button>
+        </div>
+        <div className="flex justify-end gap-3">
+          <button
+            onClick={() => window.history.back()}
+            className="px-6 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition"
+          >
+            Back
+          </button>
+          <button
+            onClick={() => {
+              // Print or download invoice
+              window.print();
+            }}
+            className="px-6 py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition flex items-center gap-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+            Print Invoice
+          </button>
+        </div>
+
+        {/* <button
           onClick={() => setExtendDialog(true)}
           className="bg-indigo-600 text-white px-4 py-2 rounded"
         >
           Extend Stay
-        </button>
+        </button> */}
       </div>
       {extendDialog && (
         <ExtendStayDialog
           stay={invoice.stay}
+          buttonType={actionType}
           close={() => setExtendDialog(false)}
           refresh={fetchInvoice}
         />

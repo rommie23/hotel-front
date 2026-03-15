@@ -1,86 +1,21 @@
-// import React, { useState } from "react";
-// import axois from "../api/axios";
-// import { simpleFormatDate } from "../utils/dateTime"
-
-// const ExtendStayDialog = ({ stay, close, refresh }) => {    
-//   const [date, setDate] = useState(stay.expected_checkout_date);
-//   const [loading, setLoading] = useState(false);
-// //   console.log(stay);
-  
-
-//   const extendStay = async () => {
-
-//     try {
-//       setLoading(true);
-//       await axois.post(`/stays/${stay.stayId}/update-checkout`, {
-//         new_checkout_date: date
-//       });
-//       alert("Stay extended successfully");
-//       refresh();
-//       close();
-//     } catch (error) {
-//       alert(error.response?.data?.message || "Error extending stay");
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   return (
-//     <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-//       <div className="bg-white rounded-xl p-6 w-96 space-y-4">
-//         <h2 className="text-lg font-semibold">
-//           Extend Stay
-//         </h2>
-//         <div>
-//           <label className="text-sm text-gray-500">
-//             Current Checkout
-//           </label>
-//           <div className="border rounded p-2 mt-1 bg-gray-50">
-//             {simpleFormatDate(stay.expected_checkout_date)}
-//           </div>
-//         </div>
-//         <div>
-//           <label className="text-sm text-gray-500">
-//             New Checkout Date
-//           </label>
-//           <input
-//             type="date"
-//             value={date}
-//             onChange={(e) => setDate(e.target.value)}
-//             className="border rounded p-2 mt-1 w-full"
-//           />
-//         </div>
-//         <div className="flex justify-end gap-3 pt-3">
-//           <button
-//             onClick={close}
-//             className="px-3 py-2 border rounded"
-//           >
-//             Cancel
-//           </button>
-
-//           <button
-//             onClick={extendStay}
-//             disabled={loading}
-//             className="px-4 py-2 bg-blue-600 text-white rounded"
-//           >
-//             {loading ? "Extending..." : "Extend"}
-//           </button>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default ExtendStayDialog;
-
 import React, { useState } from "react";
 import axios from "../api/axios";
 import { simpleFormatDate } from "../utils/dateTime";
 import { CalendarIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
 
-const ExtendStayDialog = ({ stay, close, refresh }) => {    
+const ExtendStayDialog = ({ stay, close, refresh, buttonType }) => {   
+  // buttonType 1 extend, 2 reduce 
   const [date, setDate] = useState(stay.expected_checkout_date);
   const [loading, setLoading] = useState(false);
+
+
+  // date to fix calendar select
+  const today = new Date().toISOString().split("T")[0];
+  const checkoutDate = stay?.expected_checkout_date?.split("T")[0];
+  const checkinDate = stay?.checkin_at?.split("T")[0];
+  const minDate = buttonType === "extend" ? checkoutDate : checkinDate;
+
+  const maxDate = buttonType === "reduce" ? checkoutDate : null;
 
   const extendStay = async () => {
     try {
@@ -99,7 +34,6 @@ const ExtendStayDialog = ({ stay, close, refresh }) => {
   };
 
   // Calculate if the new date is valid (not in the past)
-  const today = new Date().toISOString().split('T')[0];
   const isValidDate = date >= today;
 
   return (
@@ -112,7 +46,7 @@ const ExtendStayDialog = ({ stay, close, refresh }) => {
               <CalendarIcon className="w-5 h-5 text-amber-600" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-gray-800">Extend Stay</h2>
+              <h2 className="text-lg font-semibold text-gray-800">{buttonType === "extend" ? "Extend Stay" : "Reduce Stay"}</h2>
               <p className="text-xs text-gray-500 mt-0.5">
                 Stay ID: #{stay.stayId}
               </p>
@@ -170,7 +104,8 @@ const ExtendStayDialog = ({ stay, close, refresh }) => {
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                min={today}
+                min={minDate}
+                max={maxDate || undefined}
                 className={`
                   w-full pl-9 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition
                   ${!isValidDate && date < today 
@@ -206,11 +141,12 @@ const ExtendStayDialog = ({ stay, close, refresh }) => {
 
           {/* Quick Select Options */}
           <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
-            <p className="text-xs font-medium text-gray-500 mb-2">Quick extend by:</p>
+            <p className="text-xs font-medium text-gray-500 mb-2">{buttonType === 'extend' ? 'Quick extend by:' : 'Quick reduce by:'}</p>
             <div className="flex flex-wrap gap-2">
               {[1, 2, 3, 5, 7].map(days => {
                 const newDate = new Date(stay.expected_checkout_date);
-                newDate.setDate(newDate.getDate() + days);
+                buttonType === 'extend' ?
+                newDate.setDate(newDate.getDate() + days) : newDate.setDate(newDate.getDate() - days);
                 const dateStr = newDate.toISOString().split('T')[0];
                 
                 return (
@@ -244,12 +180,12 @@ const ExtendStayDialog = ({ stay, close, refresh }) => {
             {loading ? (
               <>
                 <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                Extending...
+                {buttonType === "extend" ? "Extending..." : "Reducing..."}
               </>
             ) : (
               <>
                 <CalendarIcon className="w-4 h-4" />
-                Extend Stay
+                {buttonType === "extend" ? "Extend Stay" : "Reduce Stay"}
               </>
             )}
           </button>
