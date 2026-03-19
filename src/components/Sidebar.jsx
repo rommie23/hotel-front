@@ -170,7 +170,7 @@ export default function Sidebar() {
       {/* User Menu (Optional - can be expanded) */}
       <div className="p-4 border-t border-slate-700/50">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-linear-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
+          <div className="w-8 h-8 bg-linear-to-br from-indigo-500 to-red-600 rounded-full flex items-center justify-center">
             <span className="text-xs font-bold text-white">
               {user?.name?.charAt(0) || 'U'}
             </span>
