@@ -126,6 +126,8 @@
 import { useEffect, useState } from "react";
 import api from "../../api/axios";
 import { useParams, useNavigate } from "react-router-dom";
+import CheckoutConfirmDialog from "../../components/stay/CheckoutConfirmDialog";
+import CheckoutSettlementDialog from "../../components/stay/CheckoutSettlementDialog";
 
 export default function CheckOut() {
   const { stayId } = useParams();
@@ -136,16 +138,34 @@ export default function CheckOut() {
   const [mode, setMode] = useState("CASH");
   const [loading, setLoading] = useState(false);
 
+  const [settlementOpen, setSettlementOpen] = useState(false);
+  const [preview, setPreview] = useState(null);
+  const [selectedStayId, setSelectedStayId] = useState(null);
+
   useEffect(() => {
     fetchInvoice();
   }, []);
 
   const fetchInvoice = async () => {
     const res = await api.get(`/stays/${stayId}/invoice`);
+    console.log(res.data.stay.status);
     setInvoice(res.data);
   };
 
   const dueAmount = invoice?.summary?.dueAmount || 0;
+
+  const isActive = invoice?.stay?.status === "ACTIVE";
+  const hasDue = dueAmount > 0;
+  const isDisabled = loading || hasDue || !isActive;
+
+  let buttonText = "Confirm Checkout";
+
+  if (!isActive) {
+    buttonText = "Guest Already Checked Out";
+  } else if (hasDue) {
+    buttonText = "Clear Due Amount First";
+  }
+
 
   const handleAddPayment = async () => {
     if (!amount || Number(amount) <= 0) return;
@@ -162,10 +182,22 @@ export default function CheckOut() {
   };
 
   const handleCheckout = async () => {
-    setLoading(true);
-    await api.post(`/stays/${stayId}/checkout`);
-    setLoading(false);
-    navigate("/dashboard/reception/active-stays");
+    // const res = await api.get(`/stays/${stayId}/checkout-preview`);
+    const res = await api.post(`/stays/${stayId}/checkout-init`);
+    console.log(res);
+
+    setPreview(res.data);
+    setSelectedStayId(stayId);
+    setSettlementOpen(true);
+  };
+
+  // const confirmCheckout = async () => {
+  //   await api.post(`/stays/${selectedStayId}/checkout`);
+  //   alert("Checked out successfully");
+  // };
+  const reloadPreview = async () => {
+    const res = await api.get(`/stays/${selectedStayId}/checkout-preview`);
+    setPreview(res.data);
   };
 
   if (!invoice) {
@@ -226,18 +258,18 @@ export default function CheckOut() {
           {/* Bill Summary */}
           <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
             <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">Bill Summary</h3>
-            
+
             <div className="space-y-3">
               <div className="flex justify-between items-center py-2 border-b border-gray-200">
                 <span className="text-gray-600">Total Charges</span>
                 <span className="font-medium text-gray-800">$ {invoice.summary.totalCharges}</span>
               </div>
-              
+
               <div className="flex justify-between items-center py-2 border-b border-gray-200">
                 <span className="text-gray-600">Amount Paid</span>
                 <span className="font-medium text-green-600">$ {invoice.summary.totalPaid}</span>
               </div>
-              
+
               <div className="flex justify-between items-center py-2">
                 <span className="text-gray-800 font-semibold">Due Amount</span>
                 <span className={`font-bold text-xl ${dueAmount > 0 ? 'text-red-600' : 'text-green-600'}`}>
@@ -254,7 +286,7 @@ export default function CheckOut() {
                 <span className="w-1.5 h-1.5 bg-blue-600 rounded-full"></span>
                 Add Payment
               </h3>
-              
+
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -337,13 +369,13 @@ export default function CheckOut() {
 
           {/* Checkout Button */}
           <div className="pt-4 border-t border-gray-200">
-            <button
+            {/* <button
               onClick={handleCheckout}
               disabled={dueAmount > 0 || loading}
               className={`
                 w-full py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2
-                ${dueAmount > 0 
-                  ? "bg-gray-200 text-gray-500 cursor-not-allowed" 
+                ${dueAmount > 0
+                  ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                   : "bg-green-600 text-white hover:bg-green-700 focus:ring-4 focus:ring-green-200"
                 }
               `}
@@ -358,7 +390,32 @@ export default function CheckOut() {
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  {dueAmount > 0 ? 'Clear Due Amount First' : 'Confirm Checkout'}
+                  {dueAmount > 0 && invoice.stay.status == 'ACTIVE' ? 'Clear Due Amount First' : invoice.stay.status !== 'ACTIVE' ? 'Guest Already Checked out' : 'Confirm Checkout'}
+                </>
+              )}
+            </button> */}
+            <button
+              onClick={handleCheckout}
+              disabled={isDisabled}
+              className={`
+                w-full py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2
+                ${isDisabled
+                  ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                  : "bg-green-600 text-white hover:bg-green-700 focus:ring-4 focus:ring-green-200"
+                }
+              `}
+            >
+              {loading ? (
+                <>
+                  <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  {buttonText}
                 </>
               )}
             </button>
@@ -384,6 +441,19 @@ export default function CheckOut() {
           Back to Active Stays
         </button>
       </div>
+      {/* <CheckoutConfirmDialog
+        open={checkoutDialogOpen}
+        setOpen={setCheckoutDialogOpen}
+        preview={checkoutPreview}
+        onConfirm={confirmCheckout}
+      /> */}
+      <CheckoutSettlementDialog
+        open={settlementOpen}
+        setOpen={setSettlementOpen}
+        stayId={selectedStayId}
+        preview={preview}
+        onSuccess={reloadPreview}
+      />
     </div>
   );
 }
