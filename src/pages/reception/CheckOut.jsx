@@ -196,7 +196,7 @@ export default function CheckOut() {
   //   alert("Checked out successfully");
   // };
   const reloadPreview = async () => {
-    const res = await api.get(`/stays/${selectedStayId}/checkout-preview`);
+    // const res = await api.get(`/stays/${selectedStayId}/checkout-preview`);
     setPreview(res.data);
   };
 
