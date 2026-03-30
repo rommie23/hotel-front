@@ -22,7 +22,7 @@ export default function StayBilling() {
   const checkinDate = invoice?.stay?.checkin_at?.split("T")[0];
 
   // comparing dates 
-  const canExtend = today === checkoutDate;
+  const canExtend = today <= checkoutDate;
   const canReduce = today >= checkinDate;
 
   const fetchInvoice = async () => {
