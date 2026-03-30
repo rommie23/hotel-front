@@ -42,7 +42,7 @@ const CheckoutSettlementDialog = ({
 
   const handleCheckout = async () => {
 
-    if (dueAmount > 0) {
+    if (dueAmount > 0) {  
       alert("Please clear dues before checkout");
       return;
     }
