@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import api from "../../api/axios";
 import ExtendStayDialog from "../../components/ExtendStayDialog";
+import { getPaymentMethods } from "../../api/rooms.api";
+import ServiceChargeSection from "../../components/stay/ServiceChargesSection";
 
 export default function StayBilling() {
   const { stayId } = useParams();
@@ -9,12 +11,16 @@ export default function StayBilling() {
   const [invoice, setInvoice] = useState(null);
   const [services, setServices] = useState([]);
   const [serviceId, setServiceId] = useState("");
-  const [qty, setQty] = useState(1);
+  // const [qty, setQty] = useState(1);
   const [loading, setLoading] = useState(false);
   const [paymentMode, setPaymentMode] = useState("");
+  const [modes, setModes] = useState([]);
   const [paymentAmount, setPaymentAmount] = useState("");
   const [extendDialog, setExtendDialog] = useState(false);
   const [actionType, setActionType] = useState(null);
+  // const [items, setItems] = useState([
+  //   { serviceId: "", qty: 1 }
+  // ]);
 
   // dates for comparisons
   const today = new Date().toISOString().split("T")[0];
@@ -34,29 +40,80 @@ export default function StayBilling() {
   const fetchServices = async () => {
     const res = await api.get("/services/hotel-services");
     setServices(res.data.services);
-    // console.log("services ::", res.data);
-
   };
+
+  const fetchPaymentModes = async () => {
+    const res = await getPaymentMethods();
+    setModes(res.filter(m => m.is_active));
+  }
 
   useEffect(() => {
     fetchInvoice();
     fetchServices();
-  }, []);
+    fetchPaymentModes();
+  }, [stayId]);
 
-  const addCharge = async () => {
-    if (!serviceId) return;
+  // const addRow = () => {
+  //   setItems([...items, { serviceId: "", qty: 1 }]);
+  // };
+  // const removeRow = (index) => {
+  //   const updated = items.filter((_, i) => i !== index);
+  //   setItems(updated);
+  // };
 
-    setLoading(true);
-    await api.post(`/stays/${stayId}/charges`, {
-      serviceId,
-      quantity: qty,
-    });
+  // const updateItem = (index, key, value) => {
+  //   const updated = [...items];
+  //   updated[index][key] = value;
+  //   setItems(updated);
+  // };
 
-    setQty(1);
-    setServiceId("");
-    fetchInvoice();
-    setLoading(false);
-  };
+  // // 💰 Calculate subtotal
+  // const subtotal = items.reduce((sum, item) => {
+  //   const service = services.find(s => s.id == item.serviceId);
+  //   if (!service) return sum;
+  //   return sum + service.default_price * item.qty;
+  // }, 0);
+
+  // const finalTotal = subtotal - discountAmount;
+
+  // 🚀 Submit
+  // const submitOrder = async () => {
+  //   try {
+  //     setLoading(true);
+
+  //     await api.post("/stays/charges", {
+  //       stayId,
+  //       items,
+  //       discount_amount: discountAmount
+  //     });
+
+  //     alert("Charges added successfully");
+
+  //     // reset
+  //     setItems([{ serviceId: "", qty: 1 }]);
+  //     setDiscountAmount(0);
+
+  //   } catch (err) {
+  //     alert(err.response?.data?.message || "Error adding charges");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  // const addCharge = async () => {
+  //   if (!serviceId) return;
+
+  //   setLoading(true);
+  //   await api.post(`/stays/${stayId}/charges`, {
+  //     serviceId,
+  //     quantity: qty,
+  //   });
+
+  //   setQty(1);
+  //   setServiceId("");
+  //   fetchInvoice();
+  //   setLoading(false);
+  // };
 
   const processPayment = async () => {
     if (!paymentAmount || !paymentMode) return;
@@ -193,7 +250,15 @@ export default function StayBilling() {
       </div>
 
       {/* Add Service Item */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <ServiceChargeSection
+        stayId={stayId}
+        services={services}
+        api={api}
+        onSuccess={fetchInvoice}
+      />
+
+
+      {/* <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
           <h3 className="font-semibold text-gray-800 flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-indigo-600 rounded-full"></span>
@@ -252,7 +317,9 @@ export default function StayBilling() {
             </button>
           </div>
         </div>
-      </div>
+      </div> */}
+
+
 
       {/* Payment Section - Enhanced to match checkout screen */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -271,12 +338,12 @@ export default function StayBilling() {
                 value={paymentMode}
                 onChange={(e) => setPaymentMode(e.target.value)}
               >
-                <option value="">Payment Mode</option>
-                <option value="Cash">Cash</option>
-                <option value="Card">Card</option>
-                <option value="UPI">UPI</option>
-                <option value="Bank Transfer">Bank Transfer</option>
-                <option value="Other">Other</option>
+                <option value="0">Payment Mode</option>
+                {Array.isArray(modes) && modes.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.name}
+                  </option>
+                ))}
               </select>
             </div>
 

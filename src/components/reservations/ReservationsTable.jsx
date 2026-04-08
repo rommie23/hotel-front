@@ -6,34 +6,29 @@ import CheckinDialog from "../../components/reservations/CheckinDialog";
 import { CalendarIcon, XMarkIcon, CheckCircleIcon } from "@heroicons/react/24/outline";
 import ReservationDetailsDialog from "./ReservationDetailsDialog";
 
-const ReservationsTable = () => {
-    const [reservations, setReservations] = useState([]);
+const ReservationsTable = ({data}) => {
     const [selected, setSelected] = useState(null);
     const [checkinDialog, setCheckinDialog] = useState(null);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [reservation, setReservation] = useState(null);
     const [payments, setPayments] = useState([]);
     const [status, setStatus] = useState([]);
-
-
-    useEffect(() => {
-        fetchReservations();
-    }, []);
-
-    const fetchReservations = async () => {
-        const res = await allReservations();
-        setReservations(res);
-    };
+    console.log("ReservationsTable::",data);
+    
+    const reservations = data;
 
     const checkinReservation = async (reservation) => {
         try {
             const res = await api.post(
                 `/reservations/${reservation.id}/checkin`
             );
+            console.log("checkinReservation:::",res);
+            
             setCheckinDialog({
                 reservation,
-                stayId: res.data.stay_id,
-                assignedRoom: res.data.assigned_room
+                // stayId: res.data.stay_id,
+                // assignedRoom: res.data.assigned_room
+                data : res.data
             });
         } catch (error) {
             alert(error.response?.data?.message || "Check-in failed");
@@ -240,7 +235,6 @@ const ReservationsTable = () => {
                 <CancelReservationDialog
                     reservation={selected}
                     close={() => setSelected(null)}
-                    refresh={fetchReservations}
                 />
             )}
             {checkinDialog && (

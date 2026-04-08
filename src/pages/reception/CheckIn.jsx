@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { getAvailableRooms } from "../../api/rooms.api";
+import { useEffect, useState } from "react";
+import { getAvailableRooms, getPaymentMethods } from "../../api/rooms.api";
 import { checkInGuest } from "../../api/stays.api";
 
 export default function CheckIn() {
@@ -15,10 +15,13 @@ export default function CheckIn() {
     const [checkoutDate, setCheckoutDate] = useState("");
     const [advanceAmount, setAdvanceAmount] = useState("");
     const [paymentMode, setPaymentMode] = useState("");
+    const [discountPercent, setDiscountPercent] = useState(0);
+    const [discountAmount, setDiscountAmount] = useState(0);
 
     // Rooms State
     const [rooms, setRooms] = useState([]);
     const [roomId, setRoomId] = useState("");
+    const [modes, setModes] = useState([]);
 
     // UI State
     const [loading, setLoading] = useState(false);
@@ -46,6 +49,45 @@ export default function CheckIn() {
         }
     };
 
+    const selectedRoom = rooms.find(r => r.id == roomId);
+    const nights =
+        (new Date(checkoutDate) - new Date(checkinDate)) /
+        (1000 * 60 * 60 * 24);
+
+    const subtotal = (selectedRoom?.base_price || 0) * nights;
+
+    const fetchPaymentModes = async () => {
+        const res = await getPaymentMethods();
+        setModes(res.filter(m => m.is_active));
+    }
+
+    useEffect(() => {
+        fetchPaymentModes();
+    }, [])
+
+
+    // 🔁 Sync percent → amount
+    const handlePercentChange = (value) => {
+        const percent = Math.min(100, Math.max(0, value));
+        setDiscountPercent(percent);
+
+        const amount = (subtotal * percent) / 100;
+        setDiscountAmount(Number(amount.toFixed(2)));
+    };
+
+    // 🔁 Sync amount → percent
+    const handleAmountChange = (value) => {
+        const amount = Math.max(0, value);
+        setDiscountAmount(amount);
+
+        if (subtotal > 0) {
+            const percent = (amount / subtotal) * 100;
+            setDiscountPercent(Number(percent.toFixed(2)));
+        }
+    };
+
+    const finalTotal = subtotal - discountAmount;
+
     const handleSubmit = async () => {
         if (!name || !phone || !roomId) {
             setError("Guest name, phone number, and room are required");
@@ -72,6 +114,7 @@ export default function CheckIn() {
             formData.append("to", checkoutDate);
             formData.append("payment", advanceAmount || 0);
             formData.append("paymentMode", paymentMode || '');
+            formData.append("discount_amount", discountAmount || 0);
 
             // Guest photo (optional)
             if (photo) {
@@ -79,10 +122,10 @@ export default function CheckIn() {
             }
 
             const res = await checkInGuest(formData);
-            console.log(res);
+            // console.log(res);
 
             setMessage(
-                `Check-in successful! Stay ID: ${res.data.stayId} | Due: ₹${res.data.dueAmount}`
+                `Check-in successful! Stay ID: ${res.data.stayId} | Due: ₹${res.data.summary.dueAmount}`
             );
 
             // Reset form
@@ -290,7 +333,7 @@ export default function CheckIn() {
             )}
 
             {/* Payment Section */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
+            {/* <div className="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
                 <div className="p-6 border-b border-gray-100">
                     <h3 className="text-lg font-semibold text-gray-800">Advance Payment</h3>
                     <p className="text-sm text-gray-600 mt-1">Optional, can be completed later</p>
@@ -304,11 +347,12 @@ export default function CheckIn() {
                                 value={paymentMode}
                                 onChange={(e) => setPaymentMode(e.target.value)}
                             >
-                                <option value="">Select payment mode</option>
-                                <option value="Cash">Cash</option>
-                                <option value="Card">Card</option>
-                                <option value="Scanner">Scanner</option>
-                                <option value="Other">Other</option>
+                                <option value="0">Payment Mode</option>
+                                {Array.isArray(modes) && modes.map((m) => (
+                                    <option key={m.id} value={m.id}>
+                                        {m.name}
+                                    </option>
+                                ))}
                             </select>
                         </div>
 
@@ -324,6 +368,89 @@ export default function CheckIn() {
                                 />
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div> */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-5">
+
+                <h3 className="font-semibold text-gray-800">
+                    Checkout Summary
+                </h3>
+
+                {/* Summary */}
+                <div className="bg-gray-50 p-4 rounded-lg text-sm space-y-2">
+                    <div className="flex justify-between">
+                        <span>Subtotal:</span>
+                        <span>${subtotal.toFixed(2)}</span>
+                    </div>
+
+                    <div className="flex justify-between items-center">
+                        <span>Discount:</span>
+
+                        <div className="flex gap-2 items-center">
+
+                            {/* Amount */}
+                            <input
+                                type="number"
+                                value={discountAmount}
+                                onChange={(e) =>
+                                    handleAmountChange(Number(e.target.value))
+                                }
+                                className="w-20 px-2 py-1 border rounded text-right"
+                            />
+                            <span>$</span>
+
+                            {/* Percent */}
+                            <input
+                                type="number"
+                                value={discountPercent}
+                                onChange={(e) =>
+                                    handlePercentChange(Number(e.target.value))
+                                }
+                                className="w-16 px-2 py-1 border rounded text-right"
+                            />
+                            <span>%</span>
+
+                        </div>
+                    </div>
+
+                    <div className="flex justify-between font-semibold text-green-600 text-lg border-t pt-2">
+                        <span>Total:</span>
+                        <span>${finalTotal.toFixed(2)}</span>
+                    </div>
+                </div>
+
+                {/* Payment Section */}
+                <div className="space-y-3">
+
+                    <h4 className="text-sm font-medium text-gray-700">
+                        Add Payment
+                    </h4>
+
+                    <div className="flex gap-3">
+
+                        {/* Amount */}
+                        <input
+                            type="number"
+                            placeholder="Amount"
+                            value={advanceAmount}
+                            onChange={(e) => setAdvanceAmount(Number(e.target.value))}
+                            className="flex-1 px-3 py-2 border rounded"
+                        />
+
+                        {/* Mode */}
+                        <select
+                            value={paymentMode}
+                            onChange={(e) => setPaymentMode(e.target.value)}
+                            className="flex-1 px-3 py-2 border rounded"
+                        >
+                            <option value="">Select mode</option>
+                            {modes.map((m) => (
+                                <option key={m.id} value={m.id}>
+                                    {m.name}
+                                </option>
+                            ))}
+                        </select>
                     </div>
                 </div>
             </div>
