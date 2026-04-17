@@ -34,7 +34,7 @@ export default function StayBilling() {
   const fetchInvoice = async () => {
     const res = await api.get(`/stays/${stayId}/invoice`);
     setInvoice(res.data);
-    // console.log("invoice::", res.data);
+    console.log("invoice::", res.data);
   };
 
   const fetchServices = async () => {
@@ -52,68 +52,6 @@ export default function StayBilling() {
     fetchServices();
     fetchPaymentModes();
   }, [stayId]);
-
-  // const addRow = () => {
-  //   setItems([...items, { serviceId: "", qty: 1 }]);
-  // };
-  // const removeRow = (index) => {
-  //   const updated = items.filter((_, i) => i !== index);
-  //   setItems(updated);
-  // };
-
-  // const updateItem = (index, key, value) => {
-  //   const updated = [...items];
-  //   updated[index][key] = value;
-  //   setItems(updated);
-  // };
-
-  // // 💰 Calculate subtotal
-  // const subtotal = items.reduce((sum, item) => {
-  //   const service = services.find(s => s.id == item.serviceId);
-  //   if (!service) return sum;
-  //   return sum + service.default_price * item.qty;
-  // }, 0);
-
-  // const finalTotal = subtotal - discountAmount;
-
-  // 🚀 Submit
-  // const submitOrder = async () => {
-  //   try {
-  //     setLoading(true);
-
-  //     await api.post("/stays/charges", {
-  //       stayId,
-  //       items,
-  //       discount_amount: discountAmount
-  //     });
-
-  //     alert("Charges added successfully");
-
-  //     // reset
-  //     setItems([{ serviceId: "", qty: 1 }]);
-  //     setDiscountAmount(0);
-
-  //   } catch (err) {
-  //     alert(err.response?.data?.message || "Error adding charges");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  // const addCharge = async () => {
-  //   if (!serviceId) return;
-
-  //   setLoading(true);
-  //   await api.post(`/stays/${stayId}/charges`, {
-  //     serviceId,
-  //     quantity: qty,
-  //   });
-
-  //   setQty(1);
-  //   setServiceId("");
-  //   fetchInvoice();
-  //   setLoading(false);
-  // };
 
   const processPayment = async () => {
     if (!paymentAmount || !paymentMode) return;
@@ -133,11 +71,6 @@ export default function StayBilling() {
       setLoading(false);
     }
   };
-
-  const extendReduceButton = (buttonType) => {
-    setExtendDialog(true)
-  }
-
 
 
   if (!invoice) {
@@ -256,70 +189,6 @@ export default function StayBilling() {
         api={api}
         onSuccess={fetchInvoice}
       />
-
-
-      {/* <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
-          <h3 className="font-semibold text-gray-800 flex items-center gap-2">
-            <span className="w-1.5 h-1.5 bg-indigo-600 rounded-full"></span>
-            Add Service Charge
-          </h3>
-        </div>
-
-        <div className="p-6">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <select
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition bg-white"
-                value={serviceId}
-                onChange={(e) => setServiceId(e.target.value)}
-              >
-                <option value="">Select a service</option>
-                {services.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name} — ${s.default_price}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="w-full sm:w-32">
-              <div className="relative">
-                <span className="absolute left-3 top-2.5 text-gray-500">Qty</span>
-                <input
-                  type="number"
-                  min="1"
-                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
-                  value={qty}
-                  onChange={(e) => setQty(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <button
-              onClick={addCharge}
-              disabled={loading || !serviceId}
-              className="px-6 py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-200 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-w-25"
-            >
-              {loading ? (
-                <>
-                  <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                  Adding...
-                </>
-              ) : (
-                <>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  Add
-                </>
-              )}
-            </button>
-          </div>
-        </div>
-      </div> */}
-
-
 
       {/* Payment Section - Enhanced to match checkout screen */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">

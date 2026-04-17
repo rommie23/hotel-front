@@ -7,9 +7,7 @@ const Reservations = () => {
   const [reservations, setReservations] = useState([]);
 
   const fetchReservations = async () => {
-    const res = await allReservations();
-    console.log("fetchReservations:::", res);
-    
+    const res = await allReservations();    
     setReservations(res);
   };
   useEffect(()=>{fetchReservations();},[])

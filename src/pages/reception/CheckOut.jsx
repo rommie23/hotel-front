@@ -235,7 +235,7 @@ export default function CheckOut() {
 
         switch (type) {
           case "PAYMENT_DUE":
-            alert(`Please clear dues: ₹${dueAmount}`);
+            alert(`Please clear dues: $${dueAmount}`);
             return;
 
           case "OVERSTAY":
