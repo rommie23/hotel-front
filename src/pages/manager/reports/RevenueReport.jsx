@@ -127,13 +127,13 @@ export default function RevenueReport() {
   }) => {
 
     console.log({
-    hotelName,
-    from,
-    to,
-    chargesType,
-    services_charges
-  });
-    
+      hotelName,
+      from,
+      to,
+      chargesType,
+      services_charges
+    });
+
 
     const doc = new jsPDF();
 
@@ -330,7 +330,7 @@ export default function RevenueReport() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <StatCard
               title="Total Revenue"
-              value={`$${summary.totalRevenue}`}
+              value={`$${summary.summary.totalRevenue}`}
               icon={
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -339,7 +339,7 @@ export default function RevenueReport() {
             />
             <StatCard
               title="Total Payments"
-              value={`$${summary.totalPayments}`}
+              value={`$${summary.summary.totalPayments}`}
               icon={
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -348,8 +348,8 @@ export default function RevenueReport() {
             />
             <StatCard
               title="Balance"
-              value={`$${summary.balance}`}
-              trend={summary.balance >= 0 ? 'positive' : 'negative'}
+              value={`$${summary.summary.balance}`}
+              trend={summary.summary.balance >= 0 ? 'positive' : 'negative'}
               icon={
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
@@ -381,6 +381,143 @@ export default function RevenueReport() {
               </div>
             </div>
           ) : (
+            // <table className="w-full text-sm border-collapse">
+            //   <thead>
+            //     <tr className="bg-gray-50 border-b border-gray-200">
+            //       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            //         Date
+            //       </th>
+
+            //       {/* Dynamic service columns */}
+            //       {chargesType.map((type, index) => (
+            //         <th
+            //           key={type}
+            //           className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            //         >
+            //           <div className="flex items-center gap-1">
+            //             <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full"></span>
+            //             {type}
+            //           </div>
+            //         </th>
+            //       ))}
+
+            //       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            //         <div className="flex items-center gap-1">
+            //           <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+            //           Daily Total
+            //         </div>
+            //       </th>
+            //     </tr>
+            //   </thead>
+
+            //   <tbody className="divide-y divide-gray-100">
+            //     {data.length === 0 ? (
+            //       <tr>
+            //         <td
+            //           colSpan={chargesType.length + 2}
+            //           className="px-4 py-12 text-center text-gray-500"
+            //         >
+            //           <div className="flex flex-col items-center justify-center">
+            //             <svg className="w-12 h-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            //               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            //             </svg>
+            //             <p className="text-gray-500 text-lg mb-1">No revenue data available</p>
+            //             <p className="text-gray-400 text-sm">Select a date range and generate report</p>
+            //           </div>
+            //         </td>
+            //       </tr>
+            //     ) : (
+            //       data.map((row, idx) => {
+            //         // Calculate daily total
+            //         const total = chargesType.reduce(
+            //           (sum, type) => sum + Number(row[type]?.amount || 0), 0
+            //         );
+
+            //         return (
+            //           <tr
+            //             key={row.date}
+            //             className={`
+            //               ${idx % 2 === 0 ? "bg-white" : "bg-gray-50/50"}
+            //               hover:bg-gray-100/50 transition
+            //             `}
+            //           >
+            //             {/* Date */}
+            //             <td className="px-4 py-3 font-medium text-gray-800">
+            //               <div>{formatHotelDateCA(row.date)}</div>
+            //               <div className="text-xs text-gray-500 mt-0.5">
+            //                 {new Date(row.date).toLocaleDateString('en-US', { weekday: 'short' })}
+            //               </div>
+            //             </td>
+
+            //             {/* Dynamic amounts */}
+            //             {chargesType.map(type => (
+            //               <td key={type} className="px-4 py-3">
+            //                 <div className="font-medium text-gray-800">
+            //                   ${Number(row[type]?.amount || 0).toFixed(2)}
+            //                 </div>
+            //                 <div className="text-xs text-gray-500 mt-0.5 flex items-center gap-1">
+            //                   <span className="inline-block w-1 h-1 bg-gray-400 rounded-full"></span>
+            //                   {row[type]?.quantity || 0} sold @ ${Number(row[type]?.unit_price || 0).toFixed(2)}
+            //                 </div>
+            //               </td>
+            //             ))}
+
+            //             {/* Daily Total */}
+            //             <td className="px-4 py-3">
+            //               <div className="font-semibold text-green-600">
+            //                 ${total.toFixed(2)}
+            //               </div>
+            //               <div className="text-xs text-gray-500 mt-0.5">
+            //                 Total for day
+            //               </div>
+            //             </td>
+            //           </tr>
+            //         );
+            //       })
+            //     )}
+            //   </tbody>
+
+            //   {/* Table Footer with Totals */}
+            //   {data.length > 0 && (
+            //     <tfoot className="bg-gray-50 border-t border-gray-200">
+            //       <tr>
+            //         <td className="px-4 py-3 font-semibold text-gray-800">
+            //           Period Total
+            //         </td>
+
+            //         {chargesType.map(type => {
+            //           const typeTotal = data.reduce(
+            //             (sum, row) => sum + Number(row[type]?.amount || 0), 0
+            //           );
+            //           return (
+            //             <td key={type} className="px-4 py-3">
+            //               <div className="font-medium text-indigo-600">
+            //                 ${typeTotal.toFixed(2)}
+            //               </div>
+            //               <div className="text-xs text-gray-500 mt-0.5">
+            //                 Total {type}
+            //               </div>
+            //             </td>
+            //           );
+            //         })}
+
+            //         <td className="px-4 py-3">
+            //           <div className="font-bold text-green-600">
+            //             ${data.reduce((sum, row) => {
+            //               const rowTotal = chargesType.reduce(
+            //                 (rowSum, type) => rowSum + Number(row[type]?.amount || 0), 0
+            //               );
+            //               return sum + rowTotal;
+            //             }, 0).toFixed(2)}
+            //           </div>
+            //           <div className="text-xs text-gray-500 mt-0.5">
+            //             Grand Total
+            //           </div>
+            //         </td>
+            //       </tr>
+            //     </tfoot>
+            //   )}
+            // </table>
             <table className="w-full text-sm border-collapse">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-200">
@@ -388,24 +525,23 @@ export default function RevenueReport() {
                     Date
                   </th>
 
-                  {/* Dynamic service columns */}
-                  {chargesType.map((type, index) => (
+                  {/* Dynamic Columns: Room Rent, Food, Beverages */}
+                  {chargesType.map((type) => (
                     <th
                       key={type}
                       className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
                       <div className="flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full"></span>
+                        <span className={`w-1.5 h-1.5 rounded-full ${type === 'Room Rent' ? 'bg-indigo-500' :
+                            type === 'Food' ? 'bg-orange-500' : 'bg-blue-500'
+                          }`}></span>
                         {type}
                       </div>
                     </th>
                   ))}
 
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    <div className="flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
-                      Daily Total
-                    </div>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Daily Total
                   </th>
                 </tr>
               </thead>
@@ -413,35 +549,20 @@ export default function RevenueReport() {
               <tbody className="divide-y divide-gray-100">
                 {data.length === 0 ? (
                   <tr>
-                    <td
-                      colSpan={chargesType.length + 2}
-                      className="px-4 py-12 text-center text-gray-500"
-                    >
-                      <div className="flex flex-col items-center justify-center">
-                        <svg className="w-12 h-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <p className="text-gray-500 text-lg mb-1">No revenue data available</p>
-                        <p className="text-gray-400 text-sm">Select a date range and generate report</p>
-                      </div>
+                    <td colSpan={chargesType.length + 2} className="px-4 py-12 text-center text-gray-500">
+                      <p>No revenue data available for this period.</p>
                     </td>
                   </tr>
                 ) : (
                   data.map((row, idx) => {
-                    // Calculate daily total
-                    const total = chargesType.reduce(
-                      (sum, type) => sum + Number(row[type]?.amount || 0), 0
+                    // Calculate Daily Total
+                    const dailyTotal = chargesType.reduce(
+                      (sum, type) => sum + (row[type]?.amount || 0), 0
                     );
 
                     return (
-                      <tr
-                        key={row.date}
-                        className={`
-                          ${idx % 2 === 0 ? "bg-white" : "bg-gray-50/50"}
-                          hover:bg-gray-100/50 transition
-                        `}
-                      >
-                        {/* Date */}
+                      <tr key={row.date} className={`${idx % 2 === 0 ? "bg-white" : "bg-gray-50/50"} hover:bg-gray-100/50 transition`}>
+                        {/* Date Column */}
                         <td className="px-4 py-3 font-medium text-gray-800">
                           <div>{formatHotelDateCA(row.date)}</div>
                           <div className="text-xs text-gray-500 mt-0.5">
@@ -449,26 +570,23 @@ export default function RevenueReport() {
                           </div>
                         </td>
 
-                        {/* Dynamic amounts */}
-                        {chargesType.map(type => (
+                        {/* Dynamic Category Columns */}
+                        {chargesType.map((type) => (
                           <td key={type} className="px-4 py-3">
                             <div className="font-medium text-gray-800">
-                              ${Number(row[type]?.amount || 0).toFixed(2)}
+                              ${(row[type]?.amount || 0).toFixed(2)}
                             </div>
                             <div className="text-xs text-gray-500 mt-0.5 flex items-center gap-1">
                               <span className="inline-block w-1 h-1 bg-gray-400 rounded-full"></span>
-                              {row[type]?.quantity || 0} sold @ ${Number(row[type]?.unit_price || 0).toFixed(2)}
+                              {row[type]?.quantity || 0} sold @ ${(row[type]?.unit_price || 0).toFixed(2)}
                             </div>
                           </td>
                         ))}
 
-                        {/* Daily Total */}
-                        <td className="px-4 py-3">
+                        {/* Daily Total Column */}
+                        <td className="px-4 py-3 text-right">
                           <div className="font-semibold text-green-600">
-                            ${total.toFixed(2)}
-                          </div>
-                          <div className="text-xs text-gray-500 mt-0.5">
-                            Total for day
+                            ${dailyTotal.toFixed(2)}
                           </div>
                         </td>
                       </tr>
@@ -477,42 +595,31 @@ export default function RevenueReport() {
                 )}
               </tbody>
 
-              {/* Table Footer with Totals */}
+              {/* Footer: Period Totals */}
               {data.length > 0 && (
                 <tfoot className="bg-gray-50 border-t border-gray-200">
                   <tr>
-                    <td className="px-4 py-3 font-semibold text-gray-800">
-                      Period Total
-                    </td>
+                    <td className="px-4 py-3 font-semibold text-gray-800">Period Total</td>
 
-                    {chargesType.map(type => {
-                      const typeTotal = data.reduce(
-                        (sum, row) => sum + Number(row[type]?.amount || 0), 0
-                      );
+                    {chargesType.map((type) => {
+                      const typeTotal = data.reduce((sum, row) => sum + (row[type]?.amount || 0), 0);
+                      const typeQty = data.reduce((sum, row) => sum + (row[type]?.quantity || 0), 0);
+
                       return (
                         <td key={type} className="px-4 py-3">
-                          <div className="font-medium text-indigo-600">
-                            ${typeTotal.toFixed(2)}
-                          </div>
-                          <div className="text-xs text-gray-500 mt-0.5">
-                            Total {type}
-                          </div>
+                          <div className="font-medium text-indigo-600">${typeTotal.toFixed(2)}</div>
+                          <div className="text-xs text-gray-500 mt-0.5">{typeQty} total units</div>
                         </td>
                       );
                     })}
 
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 text-right">
                       <div className="font-bold text-green-600">
                         ${data.reduce((sum, row) => {
-                          const rowTotal = chargesType.reduce(
-                            (rowSum, type) => rowSum + Number(row[type]?.amount || 0), 0
-                          );
-                          return sum + rowTotal;
+                          return sum + chargesType.reduce((rSum, type) => rSum + (row[type]?.amount || 0), 0);
                         }, 0).toFixed(2)}
                       </div>
-                      <div className="text-xs text-gray-500 mt-0.5">
-                        Grand Total
-                      </div>
+                      <div className="text-xs text-gray-500 mt-0.5">Grand Total</div>
                     </td>
                   </tr>
                 </tfoot>
@@ -534,7 +641,7 @@ export default function RevenueReport() {
           <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition flex items-center gap-2 text-sm" onClick={() => exportPDF({
             hotelName: "Demo Hotel Toronto",
             from: fromDate,
-            to : toDate,
+            to: toDate,
             chargesType,
             services_charges: data
           })}>

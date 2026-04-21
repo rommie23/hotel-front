@@ -10,6 +10,8 @@ export default function OccupancyReport() {
   const [to, setTo] = useState(today);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [sortOrder, setSortOrder] = useState("asc"); // 'asc' or 'desc'
+
 
   const fetchData = async () => {
     setLoading(true);
@@ -26,6 +28,18 @@ export default function OccupancyReport() {
     : 0;
 
   const totalRooms = data[0]?.total_rooms || 0;
+
+  // 1. Sort the data in memory
+  const sortedData = [...data].sort((a, b) => {
+    const dateA = new Date(a.date);
+    const dateB = new Date(b.date);
+    return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+  });
+
+  // 2. Toggle Handler
+  const handleSortToggle = () => {
+    setSortOrder(prev => (prev === "asc" ? "desc" : "asc"));
+  };
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -94,19 +108,19 @@ export default function OccupancyReport() {
             <p className="text-2xl font-bold text-gray-800 mt-1">{data.length}</p>
             <p className="text-xs text-gray-500 mt-1">Total days</p>
           </div>
-          
+
           <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
             <p className="text-xs text-gray-500 uppercase tracking-wider">Total Rooms</p>
             <p className="text-2xl font-bold text-gray-800 mt-1">{totalRooms}</p>
             <p className="text-xs text-gray-500 mt-1">Available in hotel</p>
           </div>
-          
+
           <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
             <p className="text-xs text-gray-500 uppercase tracking-wider">Avg Occupancy</p>
             <p className="text-2xl font-bold text-indigo-600 mt-1">{avgOccupancy}%</p>
             <p className="text-xs text-gray-500 mt-1">Period average</p>
           </div>
-          
+
           <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
             <p className="text-xs text-gray-500 uppercase tracking-wider">Peak Occupancy</p>
             <p className="text-2xl font-bold text-green-600 mt-1">
@@ -118,8 +132,8 @@ export default function OccupancyReport() {
       )}
 
       {/* Occupancy Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-white border-b border-gray-200">
+      {/* <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="px-6 py-4 bg-linear-to-r from-gray-50 to-white border-b border-gray-200">
           <h3 className="font-semibold text-gray-800 flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-indigo-600 rounded-full"></span>
             Daily Occupancy Breakdown
@@ -180,10 +194,10 @@ export default function OccupancyReport() {
                   const occupancyPercent = ((row.occupied_rooms / row.total_rooms) * 100).toFixed(1);
                   const isHighOccupancy = occupancyPercent >= 80;
                   const isLowOccupancy = occupancyPercent <= 30;
-                  
+
                   return (
-                    <tr 
-                      key={row.date} 
+                    <tr
+                      key={row.date}
                       className={`
                         ${index % 2 === 0 ? "bg-white" : "bg-gray-50/30"}
                         hover:bg-gray-100/50 transition
@@ -195,28 +209,28 @@ export default function OccupancyReport() {
                           {new Date(row.date).toLocaleDateString('en-US', { weekday: 'long' })}
                         </div>
                       </td>
-                      
+
                       <td className="px-4 py-3">
                         <span className="font-semibold text-gray-800">{row.total_rooms}</span>
                       </td>
-                      
+
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
                           <span className="font-semibold text-gray-800">{row.occupied_rooms}</span>
                           <span className="text-xs text-gray-500">rooms</span>
                         </div>
                         <div className="w-20 h-1.5 bg-gray-200 rounded-full mt-1">
-                          <div 
-                            className="h-1.5 bg-indigo-600 rounded-full" 
+                          <div
+                            className="h-1.5 bg-indigo-600 rounded-full"
                             style={{ width: `${(row.occupied_rooms / row.total_rooms) * 100}%` }}
                           ></div>
                         </div>
                       </td>
-                      
+
                       <td className="px-4 py-3">
                         <span className="font-medium text-green-600">{row.available_rooms}</span>
                       </td>
-                      
+
                       <td className="px-4 py-3">
                         <span className={`
                           inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium
@@ -234,7 +248,118 @@ export default function OccupancyReport() {
             </tbody>
           </table>
         </div>
+      </div> */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    {/* Header with Sort Button */}
+    <div className="px-6 py-4 bg-linear-to-r from-gray-50 to-white border-b border-gray-200 flex justify-between items-center">
+      <div>
+        <h3 className="font-semibold text-gray-800 flex items-center gap-2">
+          <span className="w-1.5 h-1.5 bg-indigo-600 rounded-full"></span>
+          Daily Occupancy Breakdown
+        </h3>
+        <p className="text-xs text-gray-500 mt-1">
+          {data.length} day{data.length !== 1 ? "s" : ""} in selected range
+        </p>
       </div>
+      
+      {/* Sort Toggle Button */}
+      <button
+        onClick={handleSortToggle}
+        className="flex items-center gap-1 text-xs font-medium text-indigo-600 hover:text-indigo-800 bg-indigo-50 px-3 py-1.5 rounded-lg transition"
+      >
+        <span>Sort by Date</span>
+        {sortOrder === "asc" ? (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" /></svg>
+        ) : (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+        )}
+      </button>
+    </div>
+
+    <div className="overflow-x-auto">
+      <table className="w-full text-sm border-collapse">
+        <thead>
+          <tr className="bg-gray-50 border-b border-gray-200">
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Date {sortOrder === "asc" ? "↑" : "↓"}
+            </th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Total Rooms
+            </th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Occupied
+            </th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Available
+            </th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Occupancy %
+            </th>
+          </tr>
+        </thead>
+
+        <tbody className="divide-y divide-gray-100">
+          {/* Use sortedData instead of data */}
+          {sortedData.length === 0 ? (
+             /* ... Empty State ... */
+             <tr><td colSpan="5" className="px-4 py-12 text-center text-gray-500">No data found.</td></tr>
+          ) : (
+            sortedData.map((row, index) => {
+              const occupancyPercent = ((row.occupied_rooms / row.total_rooms) * 100).toFixed(1);
+              const isHighOccupancy = occupancyPercent >= 80;
+              const isLowOccupancy = occupancyPercent <= 30;
+              
+              return (
+                <tr 
+                  key={row.date} 
+                  className={`${index % 2 === 0 ? "bg-white" : "bg-gray-50/30"} hover:bg-gray-100/50 transition`}
+                >
+                  <td className="px-4 py-3">
+                    <div className="font-medium text-gray-800">{formatHotelDate(row.date)}</div>
+                    <div className="text-xs text-gray-400 mt-0.5">
+                      {new Date(row.date).toLocaleDateString('en-US', { weekday: 'long' })}
+                    </div>
+                  </td>
+                  
+                  <td className="px-4 py-3">
+                    <span className="font-semibold text-gray-800">{row.total_rooms}</span>
+                  </td>
+                  
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-gray-800">{row.occupied_rooms}</span>
+                      <span className="text-xs text-gray-500">rooms</span>
+                    </div>
+                    <div className="w-20 h-1.5 bg-gray-200 rounded-full mt-1">
+                      <div 
+                        className="h-1.5 bg-indigo-600 rounded-full" 
+                        style={{ width: `${(row.occupied_rooms / row.total_rooms) * 100}%` }}
+                      ></div>
+                    </div>
+                  </td>
+                  
+                  <td className="px-4 py-3">
+                    <span className="font-medium text-green-600">{row.available_rooms}</span>
+                  </td>
+                  
+                  <td className="px-4 py-3">
+                    <span className={`
+                      inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium
+                      ${isHighOccupancy ? 'bg-green-100 text-green-800' : ''}
+                      ${!isHighOccupancy && !isLowOccupancy ? 'bg-yellow-100 text-yellow-800' : ''}
+                      ${isLowOccupancy ? 'bg-red-100 text-red-800' : ''}
+                    `}>
+                      {occupancyPercent}%
+                    </span>
+                  </td>
+                </tr>
+              );
+            })
+          )}
+        </tbody>
+      </table>
+    </div>
+  </div>
 
       {/* Export Options */}
       {data.length > 0 && (

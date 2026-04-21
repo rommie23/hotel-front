@@ -20,7 +20,7 @@ export default function ActiveStays() {
     try {
       setLoading(true);
       const res = await getRoomBoard();
-      // console.log(res);
+      console.log(res);
       setRooms(res.rooms || res);
     } catch (err) {
       console.error(err);
